@@ -1,0 +1,3542 @@
+From 302e2b1afb0e9df1e9ced008ead897e2c128b722 Mon Sep 17 00:00:00 2001
+From: Juraj Ziak <juraj.ziak@rec-global.com>
+Date: Wed, 20 Apr 2016 08:25:54 -0400
+Subject: [PATCH 1/1] fd
+
+---
+ .../src/main/franca/joynr/DiscoveryTypes.fidl      |   2 +
+ basemodel/src/main/franca/joynr/Routing.fidl       |  24 ++
+ cpp/CMakeLists.txt                                 |  15 +
+ cpp/JoynrConfig.cmake.in                           |  20 ++
+ cpp/cluster-controller/CMakeLists.txt              |   7 +
+ .../resources/default-asyncipc.settings            |   4 +
+ cpp/libjoynr/CMakeLists.txt                        |   2 +
+ cpp/libjoynr/asyncipc/AsyncIPCMessageReceiver.cpp  | 104 ++++++
+ cpp/libjoynr/asyncipc/AsyncIPCMessageReceiver.h    |  61 ++++
+ .../asyncipc/AsyncIPCMessageRouterAdapter.cpp      |  39 +++
+ cpp/libjoynr/asyncipc/AsyncIPCMessageSender.cpp    |  62 ++++
+ cpp/libjoynr/asyncipc/AsyncIPCMessageSender.h      |  48 +++
+ .../asyncipc/AsyncIPCMessagingSkeleton.cpp         |  44 +++
+ cpp/libjoynr/asyncipc/AsyncIPCMessagingSkeleton.h  |  47 +++
+ .../asyncipc/AsyncIPCMessagingStubAdapter.cpp      |  51 +++
+ .../asyncipc/AsyncIPCMessagingStubAdapter.h        |  55 ++++
+ .../asyncipc/AsyncIPCMessagingStubFactory.cpp      |  59 ++++
+ .../asyncipc/AsyncIPCMessagingStubFactory.h        |  44 +++
+ cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.cpp      | 123 +++++++
+ cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.h        |  66 ++++
+ .../asyncipc/AsyncIPCQueueBuffer.h.autosave        |  65 ++++
+ cpp/libjoynr/asyncipc/AsyncIPCQueueReceiver.cpp    |  65 ++++
+ cpp/libjoynr/asyncipc/AsyncIPCQueueReceiver.h      |  52 +++
+ cpp/libjoynr/asyncipc/AsyncIPCQueueSettings.cpp    |  27 ++
+ cpp/libjoynr/asyncipc/AsyncIPCQueueSettings.h      |  33 ++
+ cpp/libjoynr/asyncipc/AsyncIPCQueueTransmitter.cpp |  91 ++++++
+ cpp/libjoynr/asyncipc/AsyncIPCQueueTransmitter.h   |  52 +++
+ cpp/libjoynr/asyncipc/AsyncIPCSettings.cpp         |  91 ++++++
+ cpp/libjoynr/asyncipc/AsyncIPCSettings.h           |  60 ++++
+ .../include/joynr/AsyncIPCMessageRouterAdapter.h   |  46 +++
+ cpp/libjoynr/include/joynr/MessageRouter.h         |   5 +
+ cpp/libjoynr/joynr-messaging/MessageRouter.cpp     |  23 ++
+ cpp/runtimes/CMakeLists.txt                        |  76 +++++
+ .../JoynrClusterControllerRuntime.cpp              |  16 +
+ .../JoynrClusterControllerRuntime.h                |   5 +
+ .../asyncipc/JoynrAsyncIPCRuntimeExecutor.cpp      |  40 +++
+ .../asyncipc/JoynrAsyncIPCRuntimeExecutor.h        |  44 +++
+ .../libjoynr-runtime/asyncipc/JoynrRuntime.cpp     |  37 +++
+ .../asyncipc/LibJoynrAsyncIPCRuntime.cpp           |  75 +++++
+ .../asyncipc/LibJoynrAsyncIPCRuntime.h             |  51 +++
+ cpp/tests/CMakeLists.txt                           |   5 +
+ .../LibJoynrAsyncIPCCommunicationTests.cpp         | 139 ++++++++
+ .../asyncipc/LibJoynrRuntimeTest.cpp               | 352 +++++++++++++++++++++
+ .../asyncipc/End2EndAsyncIPCTest.cpp               | 296 +++++++++++++++++
+ .../asyncipc/AsyncIPCMessagingStubFactoryTest.cpp  |  84 +++++
+ .../asyncipc/AsyncIPCMessagingStubTest.cpp         | 178 +++++++++++
+ .../unit-tests/asyncipc/AsyncIPCSettingsTest.cpp   |  75 +++++
+ 47 files changed, 2960 insertions(+)
+ create mode 100644 cpp/cluster-controller/resources/default-asyncipc.settings
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessageReceiver.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessageReceiver.h
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessageRouterAdapter.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessageSender.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessageSender.h
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessagingSkeleton.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessagingSkeleton.h
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessagingStubAdapter.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessagingStubAdapter.h
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessagingStubFactory.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCMessagingStubFactory.h
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.h
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.h.autosave
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCQueueReceiver.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCQueueReceiver.h
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCQueueSettings.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCQueueSettings.h
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCQueueTransmitter.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCQueueTransmitter.h
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCSettings.cpp
+ create mode 100644 cpp/libjoynr/asyncipc/AsyncIPCSettings.h
+ create mode 100644 cpp/libjoynr/include/joynr/AsyncIPCMessageRouterAdapter.h
+ create mode 100644 cpp/runtimes/libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.cpp
+ create mode 100644 cpp/runtimes/libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.h
+ create mode 100644 cpp/runtimes/libjoynr-runtime/asyncipc/JoynrRuntime.cpp
+ create mode 100644 cpp/runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.cpp
+ create mode 100644 cpp/runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.h
+ create mode 100644 cpp/tests/integration-tests/asyncipc/LibJoynrAsyncIPCCommunicationTests.cpp
+ create mode 100644 cpp/tests/integration-tests/asyncipc/LibJoynrRuntimeTest.cpp
+ create mode 100644 cpp/tests/systemintegration-tests/asyncipc/End2EndAsyncIPCTest.cpp
+ create mode 100644 cpp/tests/unit-tests/asyncipc/AsyncIPCMessagingStubFactoryTest.cpp
+ create mode 100644 cpp/tests/unit-tests/asyncipc/AsyncIPCMessagingStubTest.cpp
+ create mode 100644 cpp/tests/unit-tests/asyncipc/AsyncIPCSettingsTest.cpp
+
+diff --git a/basemodel/src/main/franca/joynr/DiscoveryTypes.fidl b/basemodel/src/main/franca/joynr/DiscoveryTypes.fidl
+index 9420e55..0728718 100644
+--- a/basemodel/src/main/franca/joynr/DiscoveryTypes.fidl
++++ b/basemodel/src/main/franca/joynr/DiscoveryTypes.fidl
+@@ -90,6 +90,8 @@ typeCollection {
+ 		JOYNR
+ 		<** @description: Communication using CommonAPI over DBus **>
+ 		COMMONAPI_DBUS
++		<** @description: Communication using AsyncIPC **>
++		ASYNCIPC
+ 		<** @description: Communication using Browser **>
+ 		BROWSER
+ 		<** @description: Communication using web sockets **>
+diff --git a/basemodel/src/main/franca/joynr/Routing.fidl b/basemodel/src/main/franca/joynr/Routing.fidl
+index e399d09..7e9f612 100644
+--- a/basemodel/src/main/franca/joynr/Routing.fidl
++++ b/basemodel/src/main/franca/joynr/Routing.fidl
+@@ -48,6 +48,12 @@ typeCollection RoutingTypes {
+ 		String participantId
+ 	}
+ 
++	<** @description: AsyncIPC address **>
++	struct AsyncIPCAddress extends Address {
++		<** @description: Queue name **>
++		String queueId
++	}
++
+ 	<** @description: Browser address **>
+ 	struct BrowserAddress extends Address {
+ 		<** @description: the ID of the browser window **>
+@@ -173,6 +179,24 @@ interface Routing {
+ 				@description: the messaging address of the next hop towards
+ 					the corresponding participant ID
+ 			**>
++			RoutingTypes.AsyncIPCAddress asyncIPCAddress
++		}
++	}
++
++	<**
++		@description: Adds a hop to the parent routing table.
++			<br/>
++			The overloaded methods (one for each concrete Address type) is
++			needed since polymorphism is currently not supported by joynr.
++	**>
++	method addNextHop {
++		in {
++			<** @description: the ID of the target participant **>
++			String participantId
++			<**
++				@description: the messaging address of the next hop towards
++					the corresponding participant ID
++			**>
+ 			RoutingTypes.BrowserAddress browserAddress
+ 		}
+ 	}
+diff --git a/cpp/CMakeLists.txt b/cpp/CMakeLists.txt
+index 1db8bf1..364debb 100644
+--- a/cpp/CMakeLists.txt
++++ b/cpp/CMakeLists.txt
+@@ -684,6 +684,7 @@ set(
+     JoynrCommon
+     Joynr
+     JoynrWsRuntime
++    JoynrAsyncIPCRuntime
+     JoynrJsonSerializer
+ )
+ 
+@@ -744,6 +745,11 @@ set(
+     JoynrWsRuntime
+ )
+ 
++set(
++    JoynrConfig_LIB_ASYNCIPC_LIBRARIES
++    JoynrAsyncIPCRuntime
++)
++
+ if(${USE_DBUS_COMMONAPI_COMMUNICATION})
+     set(
+         JoynrConfig_LIB_DBUS_LIBRARIES
+@@ -783,6 +789,14 @@ set(
+     ${JoynrJsonSerializer_PUBLIC_INCLUDE_DIRECTORY}
+     ${jsmn_INCLUDE_DIR}
+ )
++set(
++    JoynrConfig_LIB_ASYNCIPC_INCLUDE_DIRS
++    ${JoynrCommon_PUBLIC_INCLUDE_DIRECTORY}
++    ${Joynr_PUBLIC_INCLUDE_DIRECTORY}
++    ${spdlog_INCLUDE_DIRS}
++    ${JoynrJsonSerializer_PUBLIC_INCLUDE_DIRECTORY}
++    ${jsmn_INCLUDE_DIR}
++)
+ if(${USE_DBUS_COMMONAPI_COMMUNICATION})
+     set(
+         JoynrConfig_LIB_DBUS_INCLUDE_DIRS
+@@ -823,6 +837,7 @@ file(
+ set(JoynrConfig_LIB_COMMON_INCLUDE_DIRS "\${CMAKE_CURRENT_LIST_DIR}/${RELATIVE_INSTALL_INCLUDE_DIR}")
+ set(JoynrConfig_LIB_INPROCESS_INCLUDE_DIRS "\${CMAKE_CURRENT_LIST_DIR}/${RELATIVE_INSTALL_INCLUDE_DIR}")
+ set(JoynrConfig_LIB_WS_INCLUDE_DIRS "\${CMAKE_CURRENT_LIST_DIR}/${RELATIVE_INSTALL_INCLUDE_DIR}")
++set(JoynrConfig_LIB_ASYNCIPC_INCLUDE_DIRS "\${CMAKE_CURRENT_LIST_DIR}/${RELATIVE_INSTALL_INCLUDE_DIR}")
+ set(JoynrConfig_LIB_DBUS_INCLUDE_DIRS "\${CMAKE_CURRENT_LIST_DIR}/${RELATIVE_INSTALL_INCLUDE_DIR}")
+ set(JoynrConfig_TARGETS_FILE "\${CMAKE_CURRENT_LIST_DIR}/JoynrTargets.cmake")
+ set(JoynrConfig_RESOURCES_DIR "\${CMAKE_CURRENT_LIST_DIR}/${RELATIVE_INSTALL_FULL_SYSCONFDIR}")
+diff --git a/cpp/JoynrConfig.cmake.in b/cpp/JoynrConfig.cmake.in
+index 753012c..9e2e86c 100644
+--- a/cpp/JoynrConfig.cmake.in
++++ b/cpp/JoynrConfig.cmake.in
+@@ -22,6 +22,13 @@
+ #                                        communication.
+ #                                        (without cluster controller)
+ #
++#   Joynr_LIB_ASYNCIPC_INCLUDE_DIRS    - Include directories for standalone libJoynr with AsyncIPC
++#                                        communication.
++#                                        (without cluster controller)
++#   Joynr_LIB_ASYNCIPC_LIBRARIES       - Libraries needed for standalone libJoynr with AsyncIPC
++#                                        communication.
++#                                        (without cluster controller)
++#
+ #   Joynr_LIB_DBUS_INCLUDE_DIRS        - Include directories for standalone libJoynr with DBus
+ #                                        communication.
+ #                                        (without cluster controller)
+@@ -210,6 +217,19 @@ set(
+     @JoynrConfig_LIB_WS_LIBRARIES@
+ )
+ 
++# AsyncIPC configuration
++set(
++    Joynr_LIB_ASYNCIPC_INCLUDE_DIRS
++    "${Joynr_LIB_COMMON_INCLUDE_DIRS}"
++    @JoynrConfig_LIB_ASYNCIPC_INCLUDE_DIRS@
++)
++
++set(
++    Joynr_LIB_ASYNCIPC_LIBRARIES
++    "${Joynr_LIB_COMMON_LIBRARIES}"
++    @JoynrConfig_LIB_ASYNCIPC_LIBRARIES@
++)
++
+ # Dbus configuration
+ if(${USE_DBUS_COMMONAPI_COMMUNICATION})
+     set(
+diff --git a/cpp/cluster-controller/CMakeLists.txt b/cpp/cluster-controller/CMakeLists.txt
+index 4de6c8f..31af038 100644
+--- a/cpp/cluster-controller/CMakeLists.txt
++++ b/cpp/cluster-controller/CMakeLists.txt
+@@ -70,6 +70,7 @@ set(
+     Joynr
+     JoynrCommon
+     cURL::curl
++    asyncipc
+     ${Qt5Sql_LIBRARIES}
+ )
+ 
+@@ -272,6 +273,11 @@ else()
+         @ONLY
+     )
+     configure_file(
++        ${CMAKE_CURRENT_SOURCE_DIR}/resources/default-asyncipc.settings
++        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/default-asyncipc.settings
++        @ONLY
++    )
++    configure_file(
+         ${CMAKE_CURRENT_SOURCE_DIR}/resources/default-websocket.settings
+         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/default-websocket.settings
+         @ONLY
+@@ -281,6 +287,7 @@ else()
+         FILES
+             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/default-messaging.settings
+             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/default-dbus.settings
++            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/default-asyncipc.settings
+             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/default-websocket.settings
+         DESTINATION ${JOYNR_INSTALL_FULL_SYSCONFDIR}
+     )
+diff --git a/cpp/cluster-controller/resources/default-asyncipc.settings b/cpp/cluster-controller/resources/default-asyncipc.settings
+new file mode 100644
+index 0000000..c141f40
+--- /dev/null
++++ b/cpp/cluster-controller/resources/default-asyncipc.settings
+@@ -0,0 +1,4 @@
++[asyncipc]
++cluster-controller-messaging-domain=local
++cluster-controller-messaging-servicename=io.joynr.clustercontroller.Messaging
++cluster-controller-messaging-participantid=cc.messaging.participantid
+diff --git a/cpp/libjoynr/CMakeLists.txt b/cpp/libjoynr/CMakeLists.txt
+index 4651b30..ee90f79 100644
+--- a/cpp/libjoynr/CMakeLists.txt
++++ b/cpp/libjoynr/CMakeLists.txt
+@@ -85,6 +85,7 @@ file(
+     "proxy/*.h"
+     "subscription/*.h"
+     "websocket/*.h"
++    "asyncipc/*.h"
+     "CapabilitiesRegistrar.h"
+     "LibjoynrSettings.h"
+     "JsonExceptionSerializer.h"
+@@ -111,6 +112,7 @@ file(
+     "proxy/*.cpp"
+     "subscription/*.cpp"
+     "websocket/*.cpp"
++    "asyncipc/*.cpp"
+     "CapabilitiesRegistrar.cpp"
+     "LibjoynrSettings.cpp"
+     "JsonExceptionSerializer.cpp"
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessageReceiver.cpp b/cpp/libjoynr/asyncipc/AsyncIPCMessageReceiver.cpp
+new file mode 100644
+index 0000000..94c76c2
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessageReceiver.cpp
+@@ -0,0 +1,104 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++
++#include "AsyncIPCMessageReceiver.h"
++#include "AsyncIPCQueueSettings.h"
++#include "joynr/exceptions/JoynrException.h"
++#include <unistd.h>
++#include <errno.h>
++#include <string.h>
++
++namespace joynr
++{
++
++/*static*/ std::set<std::string> AsyncIPCMessageReceiver::instances;
++
++/*static*/ std::mutex AsyncIPCMessageReceiver::mtx;
++/*static*/ std::condition_variable AsyncIPCMessageReceiver::cv;
++
++/*static*/ AsyncIPCMessageReceiver* AsyncIPCMessageReceiver::Register(
++        AsyncIPCMessagingSkeleton& skeleton,
++        const std::string& queueName)
++{
++    if (instances.find(queueName) == instances.end())
++        instances.insert(queueName);
++
++    return new AsyncIPCMessageReceiver(skeleton, queueName);
++}
++AsyncIPCMessageReceiver::AsyncIPCMessageReceiver(AsyncIPCMessagingSkeleton& skeleton,
++                                                 const std::string& queueName)
++        : AsyncMessage(),
++          eventPoll(),
++          threadPool(1, "ThredPoolQueueReceiver"),
++          receiveBuffer(),
++          queueReceiver(NULL),
++          message(new char[AsyncIPCQueueSettings::MaxMessageSize])
++{
++    bool success =
++            open(eventPoll, std::string("/" + queueName + ".mq").c_str(),
++                 AsyncIPC::AsyncMessage::Direction::IN, AsyncIPCQueueSettings::MaxMessageSize);
++    if (!success)
++        throw exceptions::JoynrRuntimeException(strerror(errno));
++
++    clear();
++
++    queueReceiver = new AsyncIPCQueueReceiver(
++            eventPoll, new AsyncIPCQueueTransmitter(skeleton, receiveBuffer));
++    threadPool.schedule(queueReceiver);
++
++    while (!queueReceiver->IsRunning())
++        usleep(10);
++}
++
++AsyncIPCMessageReceiver::~AsyncIPCMessageReceiver()
++{
++    threadPool.shutdown();
++
++    queueReceiver = NULL; // deleted internally by threadPool
++
++    delete[] message;
++    message = NULL;
++}
++
++/*static*/ void AsyncIPCMessageReceiver::Unlink()
++{
++    while (!instances.empty()) {
++        std::string queueName = *instances.begin();
++        mq_unlink(std::string("/" + queueName + ".mq").c_str());
++        instances.erase(instances.begin());
++    }
++}
++
++bool AsyncIPCMessageReceiver::handle_event_read()
++{
++    std::unique_lock<std::mutex> lock(mtx);
++
++    size_t message_size;
++
++    while (do_receive(message, AsyncIPCQueueSettings::MaxMessageSize, &message_size))
++    {
++        receiveBuffer.Push(message);
++
++        cv.notify_all();
++    }
++
++    return true;
++}
++
++} // namespace joynr
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessageReceiver.h b/cpp/libjoynr/asyncipc/AsyncIPCMessageReceiver.h
+new file mode 100644
+index 0000000..f09ad87
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessageReceiver.h
+@@ -0,0 +1,61 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCMESSAGERECEIVER_H
++#define ASYNCIPCMESSAGERECEIVER_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include "joynr/ThreadPoolDelayedScheduler.h"
++#include "AsyncIPC-AsyncMessage.h"
++#include "AsyncIPC-AsyncEventPoll.h"
++#include "libjoynr/asyncipc/AsyncIPCQueueBuffer.h"
++#include "libjoynr/asyncipc/AsyncIPCQueueReceiver.h"
++
++namespace joynr
++{
++
++// Klasse für Ping-Messages + Eingangs- und Ausgangsqueue
++class AsyncIPCMessageReceiver : public AsyncIPC::AsyncMessage
++{
++public:
++    virtual ~AsyncIPCMessageReceiver();
++    static AsyncIPCMessageReceiver* Register(AsyncIPCMessagingSkeleton& skeleton,
++                                             const std::string& queueName);
++    static void Unlink();
++
++    static std::mutex mtx;
++    static std::condition_variable cv;
++
++protected:
++    virtual bool handle_event_read(void);
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(AsyncIPCMessageReceiver);
++
++    AsyncIPCMessageReceiver(AsyncIPCMessagingSkeleton& skeleton, const std::string& queueName);
++    AsyncIPC::AsyncEventPoll eventPoll;
++    ThreadPoolDelayedScheduler threadPool;
++    static std::set<std::string> instances;
++    AsyncIPCQueueBuffer receiveBuffer;
++    AsyncIPCQueueReceiver* queueReceiver;
++    char* message;
++};
++}
++
++// namespace joynr
++#endif // ASYNCIPCMESSAGERECEIVER_H
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessageRouterAdapter.cpp b/cpp/libjoynr/asyncipc/AsyncIPCMessageRouterAdapter.cpp
+new file mode 100644
+index 0000000..62fbaa6
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessageRouterAdapter.cpp
+@@ -0,0 +1,39 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include "joynr/AsyncIPCMessageRouterAdapter.h"
++
++namespace joynr
++{
++
++AsyncIPCMessageRouterAdapter::AsyncIPCMessageRouterAdapter(MessageRouter& messageRouter,
++                                                           const std::string& queueName)
++        : messageRouter(messageRouter), skeleton(*this, queueName)
++{
++}
++
++AsyncIPCMessageRouterAdapter::~AsyncIPCMessageRouterAdapter()
++{
++}
++
++void AsyncIPCMessageRouterAdapter::transmit(JoynrMessage& message, const std::function<void(const exceptions::JoynrRuntimeException&)>& onFailure)
++{
++    messageRouter.route(message);
++}
++
++} // namespace joynr
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessageSender.cpp b/cpp/libjoynr/asyncipc/AsyncIPCMessageSender.cpp
+new file mode 100644
+index 0000000..1693a5e
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessageSender.cpp
+@@ -0,0 +1,62 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++
++#include "AsyncIPCMessageSender.h"
++#include "AsyncIPCQueueSettings.h"
++#include "joynr/exceptions/JoynrException.h"
++#include <unistd.h>
++#include <errno.h>
++#include <string.h>
++
++namespace joynr
++{
++
++/*static*/ std::set<std::string> AsyncIPCMessageSender::instances;
++
++/*static*/ AsyncIPCMessageSender* AsyncIPCMessageSender::Register(const std::string& queueName)
++{
++    if (instances.find(queueName) == instances.end())
++        instances.insert(queueName);
++
++    return new AsyncIPCMessageSender(queueName);
++}
++
++AsyncIPCMessageSender::AsyncIPCMessageSender(const std::string& queueName) : eventPoll()
++{
++    bool success =
++            open(eventPoll, std::string("/" + queueName + ".mq").c_str(),
++                 AsyncIPC::AsyncMessage::Direction::OUT, AsyncIPCQueueSettings::MaxMessageSize);
++    if (!success)
++        throw exceptions::JoynrRuntimeException(strerror(errno));
++}
++
++AsyncIPCMessageSender::~AsyncIPCMessageSender()
++{
++}
++
++/*static*/ void AsyncIPCMessageSender::Unlink()
++{
++    while (!instances.empty()) {
++        std::string queueName = *instances.begin();
++        mq_unlink(std::string("/" + queueName + ".mq").c_str());
++        instances.erase(instances.begin());
++    }
++}
++
++} // namespace joynr
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessageSender.h b/cpp/libjoynr/asyncipc/AsyncIPCMessageSender.h
+new file mode 100644
+index 0000000..eb9dd9f
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessageSender.h
+@@ -0,0 +1,48 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCMESSAGESENDER_H
++#define ASYNCIPCMESSAGESENDER_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include "AsyncIPC-AsyncMessage.h"
++#include "AsyncIPC-AsyncEventPoll.h"
++#include <string>
++#include <set>
++
++namespace joynr
++{
++
++class AsyncIPCMessageSender : public AsyncIPC::AsyncMessage
++{
++public:
++    static AsyncIPCMessageSender* Register(const std::string& queueName);
++    virtual ~AsyncIPCMessageSender();
++    static void Unlink();
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(AsyncIPCMessageSender);
++
++    AsyncIPCMessageSender(const std::string& queueName);
++    AsyncIPC::AsyncEventPoll eventPoll;
++    static std::set<std::string> instances;
++};
++}
++
++// namespace joynr
++#endif // ASYNCIPCMESSAGESENDER_H
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessagingSkeleton.cpp b/cpp/libjoynr/asyncipc/AsyncIPCMessagingSkeleton.cpp
+new file mode 100644
+index 0000000..9c8bcc6
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessagingSkeleton.cpp
+@@ -0,0 +1,44 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++
++#include "AsyncIPCMessagingSkeleton.h"
++#include "AsyncIPCMessageReceiver.h"
++
++namespace joynr
++{
++
++AsyncIPCMessagingSkeleton::AsyncIPCMessagingSkeleton(IMessaging& iMessaging,
++                                                     const std::string& queueName)
++        : messageReceiver(AsyncIPCMessageReceiver::Register(*this, queueName)),
++          iMessaging(iMessaging)
++{
++}
++
++AsyncIPCMessagingSkeleton::~AsyncIPCMessagingSkeleton()
++{
++    delete messageReceiver;
++    messageReceiver = NULL;
++}
++
++void AsyncIPCMessagingSkeleton::transmit(JoynrMessage& message, const std::function<void(const exceptions::JoynrRuntimeException&)>& onFailure)
++{
++    iMessaging.transmit(message, onFailure);
++}
++
++} // namespace joynr
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessagingSkeleton.h b/cpp/libjoynr/asyncipc/AsyncIPCMessagingSkeleton.h
+new file mode 100644
+index 0000000..fd70d06
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessagingSkeleton.h
+@@ -0,0 +1,47 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCMESSAGINGSKELETON_H
++#define ASYNCIPCMESSAGINGSKELETON_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include "joynr/JoynrExport.h"
++#include "joynr/IMessaging.h"
++#include <string>
++
++namespace joynr
++{
++class AsyncIPCMessageReceiver;
++
++class JOYNR_EXPORT AsyncIPCMessagingSkeleton : public IMessaging
++{
++public:
++    AsyncIPCMessagingSkeleton(IMessaging& iMessaging, const std::string& queueName);
++    virtual ~AsyncIPCMessagingSkeleton();
++    virtual void transmit(JoynrMessage& message, const std::function<void(const exceptions::JoynrRuntimeException&)>& onFailure);
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(AsyncIPCMessagingSkeleton);
++
++    AsyncIPCMessageReceiver* messageReceiver;
++    IMessaging& iMessaging;
++};
++}
++
++// namespace joynr
++#endif // ASYNCIPCMESSAGINGSKELETON_H
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubAdapter.cpp b/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubAdapter.cpp
+new file mode 100644
+index 0000000..7967fad
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubAdapter.cpp
+@@ -0,0 +1,51 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include "AsyncIPCMessagingStubAdapter.h"
++#include "joynr/JoynrMessage.h"
++#include "joynr/JsonSerializer.h"
++#include "AsyncIPCQueueSettings.h"
++#include "AsyncIPCMessageSender.h"
++
++namespace joynr
++{
++
++INIT_LOGGER(AsyncIPCMessagingStubAdapter);
++
++AsyncIPCMessagingStubAdapter::AsyncIPCMessagingStubAdapter(const std::string& queueName)
++        : asyncIPCMessager(NULL)
++{
++    asyncIPCMessager = AsyncIPCMessageSender::Register(queueName);
++}
++
++AsyncIPCMessagingStubAdapter::~AsyncIPCMessagingStubAdapter()
++{
++    delete asyncIPCMessager;
++    asyncIPCMessager = NULL;
++}
++
++void AsyncIPCMessagingStubAdapter::transmit(JoynrMessage& message, const std::function<void(const exceptions::JoynrRuntimeException&)>& onFailure)
++{
++    std::string str = joynr::JsonSerializer::serialize(message);
++
++    JOYNR_LOG_TRACE(logger, "OUTGOING\nmessage: {}", str);
++
++    asyncIPCMessager->send(str.c_str(), str.size());
++}
++
++} // namespace joynr
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubAdapter.h b/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubAdapter.h
+new file mode 100644
+index 0000000..774f8a4
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubAdapter.h
+@@ -0,0 +1,55 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCMESSAGINSTUBADAPTER_H
++#define ASYNCIPCMESSAGINSTUBADAPTER_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include "joynr/JoynrCommonExport.h"
++#include "joynr/Logger.h"
++#include "joynr/IMessaging.h"
++
++// save the GCC diagnostic state
++#pragma GCC diagnostic push
++// Disable compiler warnings in this CommonAPI generated includes.
++#pragma GCC diagnostic ignored "-Wunused-parameter"
++#pragma GCC diagnostic ignored "-Weffc++"
++// restore the old GCC diagnostic state
++#pragma GCC diagnostic pop
++
++namespace joynr
++{
++class AsyncIPCMessageSender;
++
++class JOYNRCOMMON_EXPORT AsyncIPCMessagingStubAdapter : public IMessaging
++{
++public:
++    AsyncIPCMessagingStubAdapter(const std::string& serviceAddress);
++    virtual ~AsyncIPCMessagingStubAdapter();
++    virtual void transmit(JoynrMessage& message, const std::function<void(const exceptions::JoynrRuntimeException&)>& onFailure);
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(AsyncIPCMessagingStubAdapter);
++
++    AsyncIPCMessageSender* asyncIPCMessager;
++    ADD_LOGGER(AsyncIPCMessageSender);
++};
++}
++
++// namespace joynr
++#endif // DBUSMESSAGINSTUBADAPTER_H
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubFactory.cpp b/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubFactory.cpp
+new file mode 100644
+index 0000000..266b905
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubFactory.cpp
+@@ -0,0 +1,59 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2014 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include "AsyncIPCMessagingStubFactory.h"
++#include "AsyncIPCMessagingStubAdapter.h"
++#include "joynr/system/RoutingTypes/AsyncIPCAddress.h"
++
++namespace joynr
++{
++
++AsyncIPCMessagingStubFactory::AsyncIPCMessagingStubFactory() : stubMap(), mutex()
++{
++}
++
++bool AsyncIPCMessagingStubFactory::canCreate(
++        const joynr::system::RoutingTypes::Address& destAddress)
++{
++    return dynamic_cast<const system::RoutingTypes::AsyncIPCAddress*>(&destAddress);
++}
++
++std::shared_ptr<IMessaging> AsyncIPCMessagingStubFactory::create(
++        const joynr::system::RoutingTypes::Address& destAddress)
++{
++    const system::RoutingTypes::AsyncIPCAddress* asyncIPCAddress =
++            dynamic_cast<const system::RoutingTypes::AsyncIPCAddress*>(&destAddress);
++    std::string address = asyncIPCAddress->getQueueId();
++
++    std::shared_ptr<IMessaging> stub = nullptr;
++    // lookup address
++    {
++        std::lock_guard<std::mutex> lock(mutex);
++        auto entry = stubMap.find(address);
++        if (entry == stubMap.end()) {
++            // create new stub
++            stub = std::shared_ptr<IMessaging>(new AsyncIPCMessagingStubAdapter(address));
++            stubMap.insert(std::make_pair(address, stub));
++        } else {
++            stub = entry->second;
++        }
++    }
++    return stub;
++}
++
++} // namespace joynre
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubFactory.h b/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubFactory.h
+new file mode 100644
+index 0000000..4cb7e8a
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCMessagingStubFactory.h
+@@ -0,0 +1,44 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2014 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCMESSAGINGSTUBFACTORY_H
++#define ASYNCIPCMESSAGINGSTUBFACTORY_H
++
++#include "joynr/IMiddlewareMessagingStubFactory.h"
++#include "joynr/system/RoutingTypes/AsyncIPCAddress.h"
++#include "joynr/TypeUtil.h"
++#include <mutex>
++#include <map>
++
++namespace joynr
++{
++
++class AsyncIPCMessagingStubFactory : public IMiddlewareMessagingStubFactory
++{
++public:
++    AsyncIPCMessagingStubFactory();
++    std::shared_ptr<IMessaging> create(const joynr::system::RoutingTypes::Address& destAddress) override;
++    bool canCreate(const joynr::system::RoutingTypes::Address& destAddress) override;
++
++private:
++    std::map<std::string, std::shared_ptr<IMessaging>> stubMap;
++    std::mutex mutex;
++};
++
++} // namespace joynr
++#endif // ASYNCIPCMESSAGINGSTUBFACTORY_H
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.cpp b/cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.cpp
+new file mode 100644
+index 0000000..74025da
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.cpp
+@@ -0,0 +1,123 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++
++#include "AsyncIPCQueueBuffer.h"
++#include "AsyncIPCQueueSettings.h"
++#include <string.h>
++
++namespace joynr
++{
++
++AsyncIPCQueueBuffer::AsyncIPCQueueBuffer() : buffers(), lockObj(), current(NULL)
++{
++}
++
++AsyncIPCQueueBuffer::~AsyncIPCQueueBuffer()
++{
++}
++
++AsyncIPCQueueBuffer::BufferElement::BufferElement(AsyncIPCQueueBuffer& receiveBuffer)
++        : buffer(NULL), receiveBuffer(receiveBuffer), pushIndex(0), pullIndex(0)
++{
++    buffer = new char[AsyncIPCQueueSettings::QueueBufferSize *
++                      AsyncIPCQueueSettings::MaxMessageSize];
++}
++
++AsyncIPCQueueBuffer::BufferElement::~BufferElement()
++{
++    delete[] buffer;
++    buffer = NULL;
++}
++
++void AsyncIPCQueueBuffer::Push(const char* message)
++{
++    std::lock_guard<std::mutex> lock(lockObj);
++
++    if (current == NULL) {
++        current = new BufferElement(*this);
++        buffers.push(current);
++    }
++
++    if (!current->TryPush(message)) {
++        current = new BufferElement(*this);
++        current->TryPush(message);
++        buffers.push(current);
++    }
++}
++
++bool AsyncIPCQueueBuffer::BufferElement::TryPush(const char* message)
++{
++    if (pushIndex == AsyncIPCQueueSettings::QueueBufferSize)
++        return false;
++
++    char* ret = (char*)buffer;
++    ret = (char*)(long)ret + pushIndex * AsyncIPCQueueSettings::MaxMessageSize;
++
++    ++pushIndex;
++
++    strcpy(ret, message);
++
++    return true;
++}
++
++const char* AsyncIPCQueueBuffer::Pull()
++{
++    std::lock_guard<std::mutex> lock(lockObj);
++
++    if (!buffers.size())
++        return NULL;
++
++    BufferElement* buffer = buffers.front();
++    const char* message = buffer->TryPull();
++    if (message == NULL && buffer->pushIndex == AsyncIPCQueueSettings::QueueBufferSize) {
++        if (buffer == current)
++            current = NULL;
++
++        Free();
++        return NULL;
++    }
++
++    return message;
++}
++
++void AsyncIPCQueueBuffer::Free()
++{
++    if (!buffers.size())
++        return;
++
++    BufferElement* buffer = buffers.front();
++    if (buffer != NULL) {
++        buffers.pop();
++        delete buffer;
++    }
++}
++
++const char* AsyncIPCQueueBuffer::BufferElement::TryPull()
++{
++    if (pullIndex == 10 || pullIndex == pushIndex)
++        return NULL;
++
++    char* ret = (char*)buffer;
++    ret = (char*)(long)ret + pullIndex * AsyncIPCQueueSettings::MaxMessageSize;
++
++    ++pullIndex;
++
++    return ret;
++}
++} // namespace joynr
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.h b/cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.h
+new file mode 100644
+index 0000000..da3e3ad
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.h
+@@ -0,0 +1,66 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCQUEUEBUFFER_H
++#define ASYNCIPCQUEUEBUFFER_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include <queue>
++#include <mutex>
++
++namespace joynr
++{
++
++class AsyncIPCQueueBuffer
++{
++    class BufferElement
++    {
++    public:
++        BufferElement(AsyncIPCQueueBuffer& buffer);
++        ~BufferElement();
++        bool TryPush(const char* message);
++        const char* TryPull();
++
++        char* buffer;
++        AsyncIPCQueueBuffer& receiveBuffer;
++        int pushIndex;
++        int pullIndex;
++
++        DISALLOW_COPY_AND_ASSIGN(BufferElement);
++    };
++
++public:
++    AsyncIPCQueueBuffer();
++    virtual ~AsyncIPCQueueBuffer();
++
++    void Push(const char* message);
++    const char* Pull();
++    void Free();
++    const int BufferSize = 10;
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(AsyncIPCQueueBuffer);
++
++    std::queue<BufferElement*> buffers;
++    std::mutex lockObj;
++    BufferElement* current;
++};
++}
++
++// namespace joynr
++#endif // ASYNCIPCQUEUEBUFFER_H
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.h.autosave b/cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.h.autosave
+new file mode 100644
+index 0000000..442eccb
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCQueueBuffer.h.autosave
+@@ -0,0 +1,65 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCQUEUEBUFFER_H
++#define ASYNCIPCQUEUEBUFFER_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include <queue>
++#include "qmutex.h"
++
++namespace joynr
++{
++
++class AsyncIPCQueueBuffer
++{
++    class BufferElement
++    {
++    public:
++        BufferElement(AsyncIPCQueueBuffer* buffer);
++        ~BufferElement();
++        bool TryPush(const char* message);
++        const char* TryPull();
++
++        char* buffer;
++        AsyncIPCQueueBuffer* receiveBuffer;
++        int pushIndex;
++        int pullIndex;
++
++        DISALLOW_COPY_AND_ASSIGN(BufferElement);
++    };
++
++public:
++    AsyncIPCQueueBuffer();
++    virtual ~AsyncIPCQueueBuffer();
++
++    void Push(const char* message);
++    const char* Pull();
++    void Free();
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(AsyncIPCQueueBuffer);
++
++    std::queue<BufferElement*> buffers;
++    QMutex lockObj;
++    BufferElement* current;
++};
++}
++
++// namespace joynr
++#endif // ASYNCIPCQUEUEBUFFER_H
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCQueueReceiver.cpp b/cpp/libjoynr/asyncipc/AsyncIPCQueueReceiver.cpp
+new file mode 100644
+index 0000000..d34d496
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCQueueReceiver.cpp
+@@ -0,0 +1,65 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++
++#include "AsyncIPCQueueReceiver.h"
++#include "unistd.h"
++
++namespace joynr
++{
++
++AsyncIPCQueueReceiver::AsyncIPCQueueReceiver(AsyncIPC::AsyncEventPoll& asyncEventPoll,
++                                             AsyncIPCQueueTransmitter* transmitter)
++        : Runnable(true),
++          asyncEventPoll(asyncEventPoll),
++          queueTransmitter(transmitter),
++          threadPool(1, "ThreadPoolQueueTransmitter"),
++          quit(false),
++          isRunning(false)
++{
++}
++
++bool AsyncIPCQueueReceiver::IsRunning() const
++{
++    return isRunning;
++}
++
++void AsyncIPCQueueReceiver::run()
++{
++    threadPool.schedule(queueTransmitter);
++    while (!queueTransmitter->IsRunning())
++        usleep(10);
++
++    isRunning = true;
++
++    while (!quit)
++        asyncEventPoll.poll_events(100, 10);
++
++    threadPool.shutdown();
++
++    queueTransmitter = NULL; // deleted internally by threadPool
++
++    isRunning = false;
++}
++
++void AsyncIPCQueueReceiver::shutdown()
++{
++    quit = true;
++}
++
++} // namespace joynr
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCQueueReceiver.h b/cpp/libjoynr/asyncipc/AsyncIPCQueueReceiver.h
+new file mode 100644
+index 0000000..0613fb0
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCQueueReceiver.h
+@@ -0,0 +1,52 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCQUEUERECEIVER_H
++#define ASYNCIPCQUEUERECEIVER_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include "joynr/Runnable.h"
++#include "joynr/ThreadPoolDelayedScheduler.h"
++#include "AsyncIPCQueueTransmitter.h"
++#include "AsyncIPC-AsyncEventPoll.h"
++
++namespace joynr
++{
++
++class AsyncIPCQueueReceiver : public joynr::Runnable
++{
++public:
++    AsyncIPCQueueReceiver(AsyncIPC::AsyncEventPoll& asyncEventPoll,
++                          AsyncIPCQueueTransmitter* transmitter);
++    void run();
++    void shutdown();
++    bool IsRunning() const;
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(AsyncIPCQueueReceiver);
++
++    AsyncIPC::AsyncEventPoll& asyncEventPoll;
++    AsyncIPCQueueTransmitter* queueTransmitter;
++    ThreadPoolDelayedScheduler threadPool;
++    bool quit;
++    bool isRunning;
++};
++}
++
++// namespace joynr
++#endif // ASYNCIPCQUEUERECEIVER_H
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCQueueSettings.cpp b/cpp/libjoynr/asyncipc/AsyncIPCQueueSettings.cpp
+new file mode 100644
+index 0000000..53b619f
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCQueueSettings.cpp
+@@ -0,0 +1,27 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++
++#include "AsyncIPCQueueSettings.h"
++
++namespace joynr
++{
++/*static*/ int AsyncIPCQueueSettings::QueueBufferSize = 10;
++/*static*/ int AsyncIPCQueueSettings::MaxMessageSize = 8192;
++
++} // namespace joynr
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCQueueSettings.h b/cpp/libjoynr/asyncipc/AsyncIPCQueueSettings.h
+new file mode 100644
+index 0000000..9c05838
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCQueueSettings.h
+@@ -0,0 +1,33 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPQUEUECSETTINGS_H
++#define ASYNCIPCQUEUESETTINGS_H
++
++namespace joynr
++{
++
++class AsyncIPCQueueSettings
++{
++public:
++    static int QueueBufferSize;
++    static int MaxMessageSize;
++};
++
++} // namespace joynr
++#endif // ASYNCIPCQUEUESETTINGS_H
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCQueueTransmitter.cpp b/cpp/libjoynr/asyncipc/AsyncIPCQueueTransmitter.cpp
+new file mode 100644
+index 0000000..7bc2047
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCQueueTransmitter.cpp
+@@ -0,0 +1,91 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++
++#include "AsyncIPCQueueTransmitter.h"
++#include "AsyncIPCQueueBuffer.h"
++#include "joynr/JoynrMessage.h"
++#include "joynr/JsonSerializer.h"
++#include "libjoynr/include/joynr/AsyncIPCMessageRouterAdapter.h"
++#include "unistd.h"
++#include "AsyncIPCMessageReceiver.h"
++
++namespace joynr
++{
++
++INIT_LOGGER(AsyncIPCQueueTransmitter);
++
++AsyncIPCQueueTransmitter::AsyncIPCQueueTransmitter(AsyncIPCMessagingSkeleton& skeleton,
++                                                   AsyncIPCQueueBuffer& receiveBuffer)
++        : Runnable(true),
++          skeleton(skeleton),
++          receiveBuffer(receiveBuffer),
++          quit(false),
++          isRunning(false)
++{
++}
++
++bool AsyncIPCQueueTransmitter::IsRunning() const
++{
++    return isRunning;
++}
++
++void AsyncIPCQueueTransmitter::run()
++{
++    isRunning = true;
++
++    while (1) {
++        const char* message = receiveBuffer.Pull();
++
++        if (quit && message == NULL)
++            break;
++
++        if (message != NULL) {
++            JOYNR_LOG_DEBUG(logger, "INCOMING\nmessage: {}", message);
++
++            JoynrMessage msg = JsonSerializer::deserialize<JoynrMessage>(message);
++            auto onFailure = [msg](const exceptions::JoynrRuntimeException& e) {
++                JOYNR_LOG_ERROR(logger,
++                                "Incoming Message with ID {} could not be sent! reason: {}",
++                                msg.getHeaderMessageId(),
++                                e.getMessage());
++            };
++
++            skeleton.transmit(msg, onFailure);
++        }
++        else
++        {
++            std::unique_lock<std::mutex> lock(AsyncIPCMessageReceiver::mtx);
++            AsyncIPCMessageReceiver::cv.wait(lock);
++        }
++    }
++
++    receiveBuffer.Free();
++
++    isRunning = false;
++}
++
++void AsyncIPCQueueTransmitter::shutdown()
++{
++    std::unique_lock<std::mutex> lock(AsyncIPCMessageReceiver::mtx);
++    AsyncIPCMessageReceiver::cv.notify_all();
++
++    quit = true;
++}
++
++} // namespace joynr
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCQueueTransmitter.h b/cpp/libjoynr/asyncipc/AsyncIPCQueueTransmitter.h
+new file mode 100644
+index 0000000..3e2ece6
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCQueueTransmitter.h
+@@ -0,0 +1,52 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCQUEUTRANSMITTER_H
++#define ASYNCIPCQUEUTRANSMITTER_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include "joynr/Logger.h"
++#include "joynr/Runnable.h"
++
++namespace joynr
++{
++class AsyncIPCMessagingSkeleton;
++class AsyncIPCQueueBuffer;
++
++class AsyncIPCQueueTransmitter : public joynr::Runnable
++{
++public:
++    AsyncIPCQueueTransmitter(AsyncIPCMessagingSkeleton& skeleton,
++                             AsyncIPCQueueBuffer& receiveBuffer);
++    void run();
++    void shutdown();
++    bool IsRunning() const;
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(AsyncIPCQueueTransmitter);
++    ADD_LOGGER(AsyncIPCQueueTransmitter);
++
++    AsyncIPCMessagingSkeleton& skeleton;
++    AsyncIPCQueueBuffer& receiveBuffer;
++    bool quit;
++    bool isRunning;
++};
++}
++
++// namespace joynr
++#endif // ASYNCIPCQUEUTRANSMITTER_H
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCSettings.cpp b/cpp/libjoynr/asyncipc/AsyncIPCSettings.cpp
+new file mode 100644
+index 0000000..bab14e9
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCSettings.cpp
+@@ -0,0 +1,91 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include "AsyncIPCSettings.h"
++#include "joynr/Settings.h"
++#include "joynr/TypeUtil.h"
++#include <cassert>
++
++namespace joynr
++{
++
++INIT_LOGGER(AsyncIPCSettings);
++
++AsyncIPCSettings::AsyncIPCSettings(Settings& settings) : settings(settings)
++{
++    Settings defaultAsyncIPCSettings{DEFAULT_ASYNCIPC_SETTINGS_FILENAME()};
++    Settings::merge(defaultAsyncIPCSettings, this->settings, false);
++    checkSettings();
++}
++
++AsyncIPCSettings::AsyncIPCSettings(const AsyncIPCSettings& other) : settings(other.settings)
++{
++}
++
++AsyncIPCSettings::~AsyncIPCSettings()
++{
++}
++
++void AsyncIPCSettings::checkSettings() const
++{
++    assert(settings.contains(SETTING_CC_MESSAGING_PARTICIPANTID()));
++}
++
++const std::string& AsyncIPCSettings::SETTING_CC_MESSAGING_PARTICIPANTID()
++{
++    static const std::string value("asyncipc/cluster-controller-messaging-participantid");
++    return value;
++}
++
++const std::string& AsyncIPCSettings::DEFAULT_ASYNCIPC_SETTINGS_FILENAME()
++{
++    static const std::string value("resources/default-asyncipc.settings");
++    return value;
++}
++
++std::string AsyncIPCSettings::getClusterControllerMessagingParticipantId() const
++{
++    return settings.get<std::string>(AsyncIPCSettings::SETTING_CC_MESSAGING_PARTICIPANTID());
++}
++
++void AsyncIPCSettings::setClusterControllerMessagingParticipantId(const std::string& participantId)
++{
++    settings.set(AsyncIPCSettings::SETTING_CC_MESSAGING_PARTICIPANTID(), participantId);
++}
++
++std::string AsyncIPCSettings::createClusterControllerMessagingAddressString() const
++{
++    std::string address;
++    address.append(getClusterControllerMessagingParticipantId());
++    return address;
++}
++
++bool AsyncIPCSettings::contains(const std::string& path) const
++{
++    return settings.contains(path);
++}
++
++void AsyncIPCSettings::printSettings() const
++{
++    JOYNR_LOG_DEBUG(logger,
++                    "SETTING: {}  = {}",
++                    SETTING_CC_MESSAGING_PARTICIPANTID(),
++                    settings.get<std::string>(SETTING_CC_MESSAGING_PARTICIPANTID()));
++}
++
++} // namespace joynr
+diff --git a/cpp/libjoynr/asyncipc/AsyncIPCSettings.h b/cpp/libjoynr/asyncipc/AsyncIPCSettings.h
+new file mode 100644
+index 0000000..8782ea5
+--- /dev/null
++++ b/cpp/libjoynr/asyncipc/AsyncIPCSettings.h
+@@ -0,0 +1,60 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCSETTINGS_H
++#define ASYNCIPCSETTINGS_H
++
++#include "joynr/JoynrCommonExport.h"
++#include "joynr/Logger.h"
++#include <string>
++
++namespace joynr
++{
++
++class Settings;
++
++class JOYNRCOMMON_EXPORT AsyncIPCSettings
++{
++
++public:
++    static const std::string& SETTING_CC_MESSAGING_PARTICIPANTID();
++
++    static const std::string& DEFAULT_ASYNCIPC_SETTINGS_FILENAME();
++
++    explicit AsyncIPCSettings(Settings& settings);
++    AsyncIPCSettings(const AsyncIPCSettings& other);
++
++    ~AsyncIPCSettings();
++
++    std::string getClusterControllerMessagingParticipantId() const;
++    void setClusterControllerMessagingParticipantId(const std::string& participantId);
++    std::string createClusterControllerMessagingAddressString() const;
++
++    void printSettings() const;
++    bool contains(const std::string& path) const;
++
++private:
++    void operator=(const AsyncIPCSettings& other);
++
++    Settings& settings;
++    ADD_LOGGER(AsyncIPCSettings);
++    void checkSettings() const;
++};
++
++} // namespace joynr
++#endif // ASYNCIPCSETTINGS_H
+diff --git a/cpp/libjoynr/include/joynr/AsyncIPCMessageRouterAdapter.h b/cpp/libjoynr/include/joynr/AsyncIPCMessageRouterAdapter.h
+new file mode 100644
+index 0000000..ae5bac0
+--- /dev/null
++++ b/cpp/libjoynr/include/joynr/AsyncIPCMessageRouterAdapter.h
+@@ -0,0 +1,46 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#ifndef ASYNCIPCMESSAGEROUTERADAPTER_H
++#define ASYNCIPCMESSAGEROUTERADAPTER_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include "joynr/MessageRouter.h"
++#include "joynr/JoynrExport.h"
++#include "libjoynr/asyncipc/AsyncIPCMessagingSkeleton.h"
++
++namespace joynr
++{
++
++class JOYNR_EXPORT AsyncIPCMessageRouterAdapter : public IMessaging
++{
++public:
++    AsyncIPCMessageRouterAdapter(MessageRouter& messageRouter, const std::string& queueName);
++
++    ~AsyncIPCMessageRouterAdapter();
++
++    virtual void transmit(JoynrMessage& message, const std::function<void(const exceptions::JoynrRuntimeException&)>& onFailure);
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(AsyncIPCMessageRouterAdapter);
++    MessageRouter& messageRouter;
++    AsyncIPCMessagingSkeleton skeleton;
++};
++
++} // namespace joynr
++#endif // ASYNCIPCMESSAGEROUTERADAPTER_H
+diff --git a/cpp/libjoynr/include/joynr/MessageRouter.h b/cpp/libjoynr/include/joynr/MessageRouter.h
+index 8583f3a..81d1c99 100644
+--- a/cpp/libjoynr/include/joynr/MessageRouter.h
++++ b/cpp/libjoynr/include/joynr/MessageRouter.h
+@@ -108,6 +108,11 @@ public:
+                     std::function<void(const joynr::exceptions::ProviderRuntimeException&)> onError)
+             override;
+     void addNextHop(const std::string& participantId,
++                    const joynr::system::RoutingTypes::AsyncIPCAddress& asyncIPCAddress,
++                    std::function<void()> onSuccess,
++                    std::function<void(const joynr::exceptions::ProviderRuntimeException&)> onError)
++            override;
++    void addNextHop(const std::string& participantId,
+                     const joynr::system::RoutingTypes::BrowserAddress& browserAddress,
+                     std::function<void()> onSuccess,
+                     std::function<void(const joynr::exceptions::ProviderRuntimeException&)> onError)
+diff --git a/cpp/libjoynr/joynr-messaging/MessageRouter.cpp b/cpp/libjoynr/joynr-messaging/MessageRouter.cpp
+index f163a5a..77fcfee 100644
+--- a/cpp/libjoynr/joynr-messaging/MessageRouter.cpp
++++ b/cpp/libjoynr/joynr-messaging/MessageRouter.cpp
+@@ -25,6 +25,7 @@
+ #include "joynr/system/RoutingTypes/ChannelAddress.h"
+ #include "joynr/system/RoutingTypes/MqttAddress.h"
+ #include "joynr/system/RoutingTypes/CommonApiDbusAddress.h"
++#include "joynr/system/RoutingTypes/AsyncIPCAddress.h"
+ #include "joynr/system/RoutingTypes/BrowserAddress.h"
+ #include "joynr/system/RoutingTypes/WebSocketAddress.h"
+ #include "joynr/system/RoutingTypes/WebSocketClientAddress.h"
+@@ -360,6 +361,22 @@ void MessageRouter::addNextHop(
+ // inherited from joynr::system::RoutingProvider
+ void MessageRouter::addNextHop(
+         const std::string& participantId,
++        const system::RoutingTypes::AsyncIPCAddress& asyncIPCAddress,
++        std::function<void()> onSuccess,
++        std::function<void(const joynr::exceptions::ProviderRuntimeException&)> onError)
++{
++    auto address = std::make_shared<joynr::system::RoutingTypes::AsyncIPCAddress>(
++            asyncIPCAddress);
++    addToRoutingTable(participantId, address);
++
++    addNextHopToParent(participantId, onSuccess, onError);
++
++    sendMessages(participantId, address);
++}
++
++// inherited from joynr::system::RoutingProvider
++void MessageRouter::addNextHop(
++        const std::string& participantId,
+         const system::RoutingTypes::BrowserAddress& browserAddress,
+         std::function<void()> onSuccess,
+         std::function<void(const joynr::exceptions::ProviderRuntimeException&)> onError)
+@@ -440,6 +457,12 @@ void MessageRouter::addNextHopToParent(
+             parentRouter->addNextHopAsync(
+                     participantId, *commonApiDbusAddress, onSuccess, onErrorWrapper);
+         }
++        if (auto asyncIPCAddress =
++                    std::dynamic_pointer_cast<joynr::system::RoutingTypes::AsyncIPCAddress>(
++                            incomingAddress)) {
++            parentRouter->addNextHopAsync(
++                    participantId, *asyncIPCAddress, onSuccess, onErrorWrapper);
++        }
+         if (auto browserAddress =
+                     std::dynamic_pointer_cast<joynr::system::RoutingTypes::BrowserAddress>(
+                             incomingAddress)) {
+diff --git a/cpp/runtimes/CMakeLists.txt b/cpp/runtimes/CMakeLists.txt
+index 7cd5aed..21d8bd0 100644
+--- a/cpp/runtimes/CMakeLists.txt
++++ b/cpp/runtimes/CMakeLists.txt
+@@ -58,6 +58,7 @@ if(${BUILD_CLUSTER_CONTROLLER})
+         "*.h"
+         "cluster-controller-runtime/*.h"
+         "cluster-controller-runtime/websocket/*.h"
++        "cluster-controller-runtime/asyncipc/*.h"
+     )
+ 
+     set(
+@@ -72,6 +73,7 @@ if(${BUILD_CLUSTER_CONTROLLER})
+         "*.cpp"
+         "cluster-controller-runtime/*.cpp"
+         "cluster-controller-runtime/websocket/*.cpp"
++        "cluster-controller-runtime/asyncipc/*.cpp"
+     )
+ 
+     add_library(
+@@ -233,6 +235,80 @@ install(
+ )
+ 
+ #######################################################
++# build libraries and executable for AsyncIPC
++#######################################################
++
++set(
++    JoynrAsyncIPCRuntime_PRIVATE_HEADERS
++    "libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.h"
++    "libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.h"
++)
++
++set(
++    JoynrAsyncIPCRuntime_SOURCES
++    "libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.cpp"
++    "libjoynr-runtime/asyncipc/JoynrRuntime.cpp"
++    "libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.cpp"
++)
++
++add_library(
++    JoynrAsyncIPCRuntime
++    SHARED
++    ${JoynrRuntime_PRIVATE_HEADERS}
++    ${JoynrRuntime_SOURCES}
++    ${JoynrAsyncIPCRuntime_PRIVATE_HEADERS}
++    ${JoynrAsyncIPCRuntime_SOURCES}
++)
++
++target_include_directories(
++    JoynrAsyncIPCRuntime
++    PRIVATE
++    ${JoynrRuntime_INCLUDE_DIRECTORIES}
++)
++
++AddClangFormat(JoynrAsyncIPCRuntime)
++
++AddIncludeWhatYouUse(JoynrAsyncIPCRuntime)
++
++AddClangTidy(JoynrAsyncIPCRuntime)
++
++target_link_libraries(
++    JoynrAsyncIPCRuntime
++    JoynrCommon
++    Joynr
++    JoynrJsonSerializer
++)
++
++generate_export_header(
++    JoynrAsyncIPCRuntime
++    EXPORT_FILE_NAME "${CMAKE_CURRENT_SOURCE_DIR}/${JoynrRuntime_EXPORT_HEADER}"
++)
++
++set_target_properties(
++    JoynrAsyncIPCRuntime
++    PROPERTIES
++    SOVERSION "${JOYNR_VERSION}"
++    VERSION "${JOYNR_VERSION}"
++    PUBLIC_INCLUDE_DIRECTORY "${runtime_PUBLIC_INCLUDE_DIRECTORY}"
++)
++
++install(
++    TARGETS JoynrAsyncIPCRuntime
++    EXPORT JoynrTargets
++    RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}" COMPONENT bin
++    ARCHIVE DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}" COMPONENT library
++    LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}" COMPONENT shlib
++    # this will flatten directory hierarchy of header files
++    # PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}" COMPONENT dev
++)
++# so we install header files manually to preserve directory hierarchy
++install(
++    DIRECTORY include/
++    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
++    FILES_MATCHING PATTERN "*.h"
++)
++
++#######################################################
+ # build libraries and executable for dbus common api
+ #######################################################
+ 
+diff --git a/cpp/runtimes/cluster-controller-runtime/JoynrClusterControllerRuntime.cpp b/cpp/runtimes/cluster-controller-runtime/JoynrClusterControllerRuntime.cpp
+index de180d2..f49f628 100644
+--- a/cpp/runtimes/cluster-controller-runtime/JoynrClusterControllerRuntime.cpp
++++ b/cpp/runtimes/cluster-controller-runtime/JoynrClusterControllerRuntime.cpp
+@@ -95,6 +95,8 @@
+ #include "libjoynr/dbus/DbusMessagingStubFactory.h"
+ #endif // USE_DBUS_COMMONAPI_COMMUNICATION
+ 
++#include "libjoynr/asyncipc/AsyncIPCMessagingStubFactory.h"
++
+ namespace joynr
+ {
+ 
+@@ -138,6 +140,8 @@ JoynrClusterControllerRuntime::JoynrClusterControllerRuntime(QCoreApplication* a
+           dbusSettings(nullptr),
+           ccDbusMessageRouterAdapter(nullptr),
+ #endif // USE_DBUS_COMMONAPI_COMMUNICATION
++          asyncIPCSettings(nullptr),
++          ccAsyncIPCMessageRouterAdapter(nullptr),
+           wsSettings(*settings),
+           wsCcMessagingSkeleton(nullptr),
+           httpMessagingIsRunning(false),
+@@ -171,6 +175,7 @@ void JoynrClusterControllerRuntime::initializeAllDependencies()
+ #ifdef USE_DBUS_COMMONAPI_COMMUNICATION
+     messagingStubFactory->registerStubFactory(std::make_unique<DbusMessagingStubFactory>());
+ #endif // USE_DBUS_COMMONAPI_COMMUNICATION
++    messagingStubFactory->registerStubFactory(std::make_unique<AsyncIPCMessagingStubFactory>());
+     messagingStubFactory->registerStubFactory(std::make_unique<InProcessMessagingStubFactory>());
+     // init message router
+     messageRouter =
+@@ -397,6 +402,13 @@ void JoynrClusterControllerRuntime::initializeAllDependencies()
+     ccDbusMessageRouterAdapter = new DBusMessageRouterAdapter(*messageRouter, ccMessagingAddress);
+ #endif // USE_DBUS_COMMONAPI_COMMUNICATION
+ 
++    asyncIPCSettings = new AsyncIPCSettings(*settings);
++    asyncIPCSettings->printSettings();
++    // register AsyncIPC skeletons for capabilities and messaging interfaces
++    std::string ccAsyncIPCMessagingAddress(asyncIPCSettings->createClusterControllerMessagingAddressString());
++    ccAsyncIPCMessageRouterAdapter = new AsyncIPCMessageRouterAdapter(*messageRouter, ccAsyncIPCMessagingAddress);
++
++
+     /**
+       * libJoynr side
+       *
+@@ -571,6 +583,10 @@ JoynrClusterControllerRuntime::~JoynrClusterControllerRuntime()
+     delete ccDbusMessageRouterAdapter;
+     delete dbusSettings;
+ #endif // USE_DBUS_COMMONAPI_COMMUNICATION
++
++    delete ccAsyncIPCMessageRouterAdapter;
++    delete asyncIPCSettings;
++
+     delete settings;
+ 
+     JOYNR_LOG_TRACE(logger, "leaving ~JoynrClusterControllerRuntime");
+diff --git a/cpp/runtimes/cluster-controller-runtime/JoynrClusterControllerRuntime.h b/cpp/runtimes/cluster-controller-runtime/JoynrClusterControllerRuntime.h
+index 7dddc78..9684a18 100644
+--- a/cpp/runtimes/cluster-controller-runtime/JoynrClusterControllerRuntime.h
++++ b/cpp/runtimes/cluster-controller-runtime/JoynrClusterControllerRuntime.h
+@@ -40,6 +40,9 @@
+ #include "common/dbus/DbusSettings.h"
+ #endif // USE_DBUS_COMMONAPI_COMMUNICATION
+ 
++#include "joynr/AsyncIPCMessageRouterAdapter.h"
++#include "libjoynr/asyncipc/AsyncIPCSettings.h"
++
+ class QCoreApplication;
+ class JoynrClusterControllerRuntimeTest;
+ 
+@@ -139,6 +142,8 @@ protected:
+     DbusSettings* dbusSettings;
+     DBusMessageRouterAdapter* ccDbusMessageRouterAdapter;
+ #endif // USE_DBUS_COMMONAPI_COMMUNICATION
++    AsyncIPCSettings* asyncIPCSettings;
++    AsyncIPCMessageRouterAdapter* ccAsyncIPCMessageRouterAdapter;
+     WebSocketSettings wsSettings;
+     WebSocketCcMessagingSkeleton* wsCcMessagingSkeleton;
+     bool httpMessagingIsRunning;
+diff --git a/cpp/runtimes/libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.cpp b/cpp/runtimes/libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.cpp
+new file mode 100644
+index 0000000..643bcc2
+--- /dev/null
++++ b/cpp/runtimes/libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.cpp
+@@ -0,0 +1,40 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2014 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include "runtimes/libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.h"
++
++#include "runtimes/libjoynr-runtime/LibJoynrRuntime.h"
++#include "runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.h"
++#include "joynr/Settings.h"
++
++namespace joynr
++{
++
++JoynrAsyncIPCRuntimeExecutor::JoynrAsyncIPCRuntimeExecutor(Settings* settings)
++        : JoynrRuntimeExecutor(settings)
++{
++    createRuntime();
++}
++
++void JoynrAsyncIPCRuntimeExecutor::createRuntime()
++{
++    runtime = std::unique_ptr<LibJoynrRuntime>(new LibJoynrAsyncIPCRuntime(settings));
++    runtimeSemaphore.notify();
++}
++
++} // namespace joynr
+diff --git a/cpp/runtimes/libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.h b/cpp/runtimes/libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.h
+new file mode 100644
+index 0000000..70a7d6b
+--- /dev/null
++++ b/cpp/runtimes/libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.h
+@@ -0,0 +1,44 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2014 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++
++#ifndef JOYNRASYNCIPCRUNTIMEEXECUTOR_H
++#define JOYNRASYNCIPCRUNTIMEEXECUTOR_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include "runtimes/libjoynr-runtime/JoynrRuntimeExecutor.h"
++
++namespace joynr
++{
++
++class LibJoynrRuntime;
++class Settings;
++
++class JoynrAsyncIPCRuntimeExecutor : public JoynrRuntimeExecutor
++{
++public:
++    explicit JoynrAsyncIPCRuntimeExecutor(Settings* settings);
++    ~JoynrAsyncIPCRuntimeExecutor() override = default;
++
++private:
++    void createRuntime();
++    DISALLOW_COPY_AND_ASSIGN(JoynrAsyncIPCRuntimeExecutor);
++};
++
++} // namespace joynr
++#endif // JOYNRASYNCIPCRUNTIMEEXECUTOR_H
+diff --git a/cpp/runtimes/libjoynr-runtime/asyncipc/JoynrRuntime.cpp b/cpp/runtimes/libjoynr-runtime/asyncipc/JoynrRuntime.cpp
+new file mode 100644
+index 0000000..f57bd85
+--- /dev/null
++++ b/cpp/runtimes/libjoynr-runtime/asyncipc/JoynrRuntime.cpp
+@@ -0,0 +1,37 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include "joynr/JoynrRuntime.h"
++#include "libjoynr-runtime/LibJoynrRuntime.h"
++#include "libjoynr-runtime/asyncipc/JoynrAsyncIPCRuntimeExecutor.h"
++#include "joynr/Settings.h"
++
++namespace joynr
++{
++
++JoynrRuntime* JoynrRuntime::createRuntime(const std::string& pathToLibjoynrSettings,
++                                          const std::string& pathToMessagingSettings)
++{
++    Settings* settings = new Settings(pathToLibjoynrSettings);
++    Settings messagingSettings{pathToMessagingSettings};
++    Settings::merge(messagingSettings, *settings, false);
++
++    return LibJoynrRuntime::create(new JoynrAsyncIPCRuntimeExecutor(settings));
++}
++
++} // namespace joynr
+diff --git a/cpp/runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.cpp b/cpp/runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.cpp
+new file mode 100644
+index 0000000..e4878cd
+--- /dev/null
++++ b/cpp/runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.cpp
+@@ -0,0 +1,75 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2014 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include "runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.h"
++#include "libjoynr/asyncipc/AsyncIPCSettings.h"
++#include "joynr/system/RoutingTypes/AsyncIPCAddress.h"
++#include "joynr/AsyncIPCMessageRouterAdapter.h"
++#include "libjoynr/asyncipc/AsyncIPCMessagingStubFactory.h"
++#include "joynr/Util.h"
++#include <stdio.h>
++
++namespace joynr
++{
++
++LibJoynrAsyncIPCRuntime::LibJoynrAsyncIPCRuntime(Settings* settings)
++        : LibJoynrRuntime(settings),
++          asyncIPCMessageRouterAdapter(NULL),
++          asyncIPCSettings(new AsyncIPCSettings(*settings)),
++          libjoynrMessagingServiceUrl()
++{
++    asyncIPCSettings->printSettings();
++
++    std::string uuid = util::createUuid();
++    // remove dashes
++    uuid.erase(std::remove(uuid.begin(), uuid.end(), '-'), uuid.end());
++    std::string libjoynrMessagingId("libjoynr.messaging.participantid_" + uuid);
++    libjoynrMessagingServiceUrl = libjoynrMessagingId;
++
++    std::shared_ptr<joynr::system::RoutingTypes::Address> libjoynrMessagingAddress(
++            new system::RoutingTypes::AsyncIPCAddress(libjoynrMessagingId));
++
++    // create connection to parent routing service
++    std::shared_ptr<joynr::system::RoutingTypes::Address> ccMessagingAddress(
++            new system::RoutingTypes::AsyncIPCAddress(
++                    asyncIPCSettings->getClusterControllerMessagingParticipantId()));
++
++    auto factory = std::make_unique<AsyncIPCMessagingStubFactory>();
++
++    LibJoynrRuntime::init(std::move(factory), libjoynrMessagingAddress, ccMessagingAddress);
++}
++
++LibJoynrAsyncIPCRuntime::~LibJoynrAsyncIPCRuntime()
++{
++    delete asyncIPCMessageRouterAdapter;
++    asyncIPCMessageRouterAdapter = NULL;
++    delete asyncIPCSettings;
++    asyncIPCSettings = NULL;
++}
++
++void LibJoynrAsyncIPCRuntime::startLibJoynrMessagingSkeleton(MessageRouter& messageRouter)
++{
++    // create messaging skeleton using uuid
++    asyncIPCMessageRouterAdapter =
++            new AsyncIPCMessageRouterAdapter(messageRouter, libjoynrMessagingServiceUrl);
++
++
++
++}
++
++} // namespace joynr
+diff --git a/cpp/runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.h b/cpp/runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.h
+new file mode 100644
+index 0000000..b3d3d9b
+--- /dev/null
++++ b/cpp/runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.h
+@@ -0,0 +1,51 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++
++#ifndef LIBJOYNRASYNCIPCRUNTIME_H
++#define LIBJOYNRDASYNCIPCRUNTIME_H
++
++#include "joynr/PrivateCopyAssign.h"
++#include "runtimes/libjoynr-runtime/LibJoynrRuntime.h"
++
++namespace joynr
++{
++
++class AsyncIPCMessageRouterAdapter;
++class AsyncIPCSettings;
++class Settings;
++
++class LibJoynrAsyncIPCRuntime : public LibJoynrRuntime
++{
++public:
++    explicit LibJoynrAsyncIPCRuntime(Settings* settings);
++    ~LibJoynrAsyncIPCRuntime() override;
++
++protected:
++    AsyncIPCMessageRouterAdapter* asyncIPCMessageRouterAdapter;
++    AsyncIPCSettings* asyncIPCSettings;
++
++    virtual void startLibJoynrMessagingSkeleton(MessageRouter& messageRouter) override;
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(LibJoynrAsyncIPCRuntime);
++    std::string libjoynrMessagingServiceUrl;
++};
++
++} // namespace joynr
++#endif // LIBJOYNRDBUSRUNTIME_H
+diff --git a/cpp/tests/CMakeLists.txt b/cpp/tests/CMakeLists.txt
+index 38bceb4..506a030 100644
+--- a/cpp/tests/CMakeLists.txt
++++ b/cpp/tests/CMakeLists.txt
+@@ -424,6 +424,7 @@ set(
+     ${test_TARGET_LIBRARIES}
+     JoynrClusterController
+     JoynrClusterControllerRuntime
++    JoynrAsyncIPCRuntime
+     # Link the Dbus runtime last so that the cluster controller
+     # runtime is the default runtime
+     ${OPTIONAL_DBUS_LIBRARIES}
+@@ -433,6 +434,7 @@ set(
+     libjoynr_test_TARGET_LIBRARIES
+     ${test_TARGET_LIBRARIES}
+     JoynrWsRuntime
++    JoynrAsyncIPCRuntime
+ )
+ 
+ set(
+@@ -504,6 +506,7 @@ if(${BUILD_CLUSTER_CONTROLLER})
+         "unit-tests/mqtt/*.cpp"
+         "unit-tests/websocket/*.cpp"
+         "unit-tests/jsonserializer/*.cpp"
++        "unit-tests/asyncipc/*.cpp"
+     )
+ 
+     if(${USE_DBUS_COMMONAPI_COMMUNICATION})
+@@ -546,6 +549,7 @@ if(${BUILD_CLUSTER_CONTROLLER})
+     file(
+        GLOB g_IntegrationTests_SOURCES
+        "integration-tests/*.cpp"
++       "integration-tests/asyncipc/*.cpp"
+     )
+ 
+     if(${USE_DBUS_COMMONAPI_COMMUNICATION})
+@@ -583,6 +587,7 @@ if(${BUILD_CLUSTER_CONTROLLER})
+     file(
+        GLOB g_SystemIntegrationTests_SOURCES
+        "systemintegration-tests/*.cpp"
++       "systemintegration-tests/asyncipc/*.cpp"
+     )
+ 
+     if(${USE_DBUS_COMMONAPI_COMMUNICATION})
+diff --git a/cpp/tests/integration-tests/asyncipc/LibJoynrAsyncIPCCommunicationTests.cpp b/cpp/tests/integration-tests/asyncipc/LibJoynrAsyncIPCCommunicationTests.cpp
+new file mode 100644
+index 0000000..b3e9c1d
+--- /dev/null
++++ b/cpp/tests/integration-tests/asyncipc/LibJoynrAsyncIPCCommunicationTests.cpp
+@@ -0,0 +1,139 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include <gtest/gtest.h>
++#include "joynr/MessagingSettings.h"
++#include "tests/utils/MockObjects.h"
++#include "libjoynr/asyncipc/AsyncIPCMessagingStubAdapter.h"
++#include "joynr/AsyncIPCMessageRouterAdapter.h"
++#include "joynr/system/RoutingTypes/ChannelAddress.h"
++
++#include "tests/utils/MockObjects.h"
++#include "joynr/IMessaging.h"
++
++#include <thread>
++#include <chrono>
++#include <sys/resource.h>
++
++using namespace joynr;
++
++class LibJoynrAsyncIPCCommunicationTests : public testing::Test {
++
++public:
++
++    std::string settingsFilename;
++    Settings settings;
++    MessagingSettings* messagingSettings;
++    ADD_LOGGER(LibJoynrAsyncIPCCommunicationTests);
++
++    LibJoynrAsyncIPCCommunicationTests():
++        settingsFilename("test-resources/integrationtest.settings"),
++        settings(settingsFilename),
++        messagingSettings(new MessagingSettings(settings))
++    {
++        qRegisterMetaType<joynr::JoynrMessage>("joynr::JoynrMessage");
++    }
++
++    ~LibJoynrAsyncIPCCommunicationTests() {
++    }
++
++    void SetUp() {
++    }
++
++    void TearDown() {
++    }
++};
++
++INIT_LOGGER(LibJoynrAsyncIPCCommunicationTests);
++
++TEST_F(LibJoynrAsyncIPCCommunicationTests, asyncipc_skeletonwrapper_register_unregister) {
++    std::string ccMessagingAddress("local:cc.messaging:cc.messaging8");
++
++    // craete mock and expect 2 calls
++    MockMessaging* msgMock = new MockMessaging();
++    EXPECT_CALL(*msgMock, transmit(A<JoynrMessage&>())).Times(2);
++
++    // create the skeleton
++    JOYNR_LOG_INFO(logger, "Register skeleton");
++    auto msgSkeleton = new AsyncIPCMessagingSkeleton(*msgMock, ccMessagingAddress);
++
++    // create message
++    JoynrMessage msg;
++    msg.setType(JoynrMessage::VALUE_MESSAGE_TYPE_ONE_WAY);
++    msg.setHeaderTo("local");
++    msg.setPayload("This is a test");
++
++    // get stub
++    AsyncIPCMessagingStubAdapter* msgStub = new AsyncIPCMessagingStubAdapter(ccMessagingAddress);
++
++    // call method
++    JOYNR_LOG_INFO(logger, "Transmit message: should work");
++    msgStub->transmit(msg);
++
++    // delete skeleton
++    JOYNR_LOG_INFO(logger, "Delete skeleton");
++    delete msgSkeleton;
++
++    // call method
++    JOYNR_LOG_INFO(logger, "Transmit message: should fail");
++    msgStub->transmit(msg);
++
++    // register skeleton
++    JOYNR_LOG_INFO(logger, "Register skeleton");
++    msgSkeleton = new AsyncIPCMessagingSkeleton(*msgMock, ccMessagingAddress);
++
++    // call method
++    JOYNR_LOG_INFO(logger, "Transmit message: should work");
++    msgStub->transmit(msg);
++
++    delete msgSkeleton;
++
++    delete msgMock;
++}
++
++TEST_F(LibJoynrAsyncIPCCommunicationTests, transmit_message) {
++    std::string ccMessagingAddress("local:joynr.messaging:cc.message6");
++
++    // register skeletons
++    MockMessaging* msgMock = new MockMessaging();
++    EXPECT_CALL(*msgMock, transmit(A<JoynrMessage&>())).Times(1);
++    auto msgSkeleton = new AsyncIPCMessagingSkeleton(*msgMock, ccMessagingAddress);
++
++    // get stub
++    AsyncIPCMessagingStubAdapter* msgStub = new AsyncIPCMessagingStubAdapter(ccMessagingAddress);
++
++    // create message
++    JoynrMessage msg;
++    msg.setType(JoynrMessage::VALUE_MESSAGE_TYPE_ONE_WAY);
++    msg.setHeaderTo("local");
++    msg.setPayload("This is a test");
++
++    // create messaging qos
++    msgStub->transmit(msg);
++
++    // delete skeleton
++    delete msgSkeleton;
++
++    // error on transmission
++    msgStub->transmit(msg);
++
++    delete msgStub;
++    delete msgMock;
++}
++
++
+diff --git a/cpp/tests/integration-tests/asyncipc/LibJoynrRuntimeTest.cpp b/cpp/tests/integration-tests/asyncipc/LibJoynrRuntimeTest.cpp
+new file mode 100644
+index 0000000..48ce916
+--- /dev/null
++++ b/cpp/tests/integration-tests/asyncipc/LibJoynrRuntimeTest.cpp
+@@ -0,0 +1,352 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2013 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include <gtest/gtest.h>
++#include <memory>
++#include <string>
++#include <stdint.h>
++#include "runtimes/cluster-controller-runtime/JoynrClusterControllerRuntime.h"
++#include "PrettyPrint.h"
++#include "runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.h"
++#include "joynr/MessagingSettings.h"
++#include "joynr/LibjoynrSettings.h"
++#include "joynr/vehicle/GpsProxy.h"
++#include "joynr/vehicle/DefaultGpsProvider.h"
++#include "joynr/SystemServicesSettings.h"
++#include "joynr/Settings.h"
++
++#include "joynr/system/RoutingTypes/ChannelAddress.h"
++#include "joynr/types/CommunicationMiddleware.h"
++#include "joynr/types/DiscoveryEntry.h"
++#include "tests/utils/MockObjects.h"
++#include "joynr/system/RoutingProxy.h"
++#include "joynr/Future.h"
++#include "joynr/Settings.h"
++#include "joynr/TypeUtil.h"
++#include <memory>
++
++#include "joynr/tests/Itest.h"
++#include "joynr/tests/testProvider.h"
++#include "joynr/tests/testProxy.h"
++
++using namespace joynr;
++
++class LibJoynrRuntimeTest : public testing::Test {
++
++public:
++    std::string settingsFilename;
++    std::string temporarylibjoynrSettingsFilename;
++    Settings settings;
++
++    MockMessageReceiver* mockMessageReceiver; // will be deleted when runtime is deleted.
++    MockMessageSender* mockMessageSender;
++    JoynrClusterControllerRuntime* ccRuntime;
++    LibJoynrAsyncIPCRuntime* runtime;
++    ProxyBuilder<joynr::system::RoutingProxy>* routingProxyBuilder;
++    joynr::system::RoutingProxy* routingProxy;
++    joynr::types::ProviderQos mockTestProviderQos;
++    std::shared_ptr<MockTestProvider> mockTestProvider;
++    ProxyBuilder<joynr::system::DiscoveryProxy>* discoveryProxyBuilder;
++    joynr::system::DiscoveryProxy* discoveryProxy;
++
++    LibJoynrRuntimeTest() :
++            settingsFilename("test-resources/integrationtest.settings"),
++            temporarylibjoynrSettingsFilename("test-resouces/LibJoynrRuntimeTest.libjoynr.settings"),
++            settings(settingsFilename),
++            mockMessageReceiver(new MockMessageReceiver()),
++            mockMessageSender(new MockMessageSender()),
++            ccRuntime(NULL),
++            runtime(NULL),
++            routingProxyBuilder(NULL),
++            routingProxy(NULL),
++            mockTestProviderQos(
++                std::vector<joynr::types::CustomParameter>(), // custom provider parameters
++                1,                                      // version
++                1,                                      // priority
++                joynr::types::ProviderScope::LOCAL,     // visibilitiy scope
++                false                                   // supports on change subscriptions
++            ),
++            mockTestProvider(),
++            discoveryProxyBuilder(NULL),
++            discoveryProxy(NULL)
++    {
++        std::string channelId("LibJoynrRuntimeTest.ChannelId");
++
++        //runtime can only be created, after MockMessageReceiver has been told to return
++        //a channelId for getReceiveChannelId.
++        EXPECT_CALL(*mockMessageReceiver, getReceiveChannelId())
++                .WillRepeatedly(::testing::ReturnRefOfCopy(channelId));
++
++        ccRuntime = new JoynrClusterControllerRuntime(
++                    NULL,
++                    new Settings(settingsFilename),
++                    mockMessageReceiver,
++                    mockMessageSender
++        );
++        // routing provider is normally registered in JoynrClusterControllerRuntime::create
++        ccRuntime->registerRoutingProvider();
++        // discovery provider is normally registered in JoynrClusterControllerRuntime::create
++        ccRuntime->registerDiscoveryProvider();
++    }
++
++    ~LibJoynrRuntimeTest() {
++        ccRuntime->deleteChannel();
++        ccRuntime->stopMessaging();
++        delete ccRuntime;
++    }
++
++    void SetUp() {
++        // start libjoynr runtime
++        runtime = new LibJoynrAsyncIPCRuntime(
++                    new joynr::Settings(temporarylibjoynrSettingsFilename)
++        );
++
++        SystemServicesSettings systemSettings(settings);
++        systemSettings.printSettings();
++        std::string systemServicesDomain(systemSettings.getDomain());
++
++        // setup routing proxy
++        std::string routingProviderParticipantId(systemSettings.getCcRoutingProviderParticipantId());
++        routingProxyBuilder = runtime
++                ->createProxyBuilder<joynr::system::RoutingProxy>(systemServicesDomain);
++        DiscoveryQos discoveryQos;
++        discoveryQos.setCacheMaxAge(1000);
++        discoveryQos.setArbitrationStrategy(DiscoveryQos::ArbitrationStrategy::FIXED_PARTICIPANT);
++        discoveryQos.addCustomParameter("fixedParticipantId", routingProviderParticipantId);
++        discoveryQos.setDiscoveryTimeout(50);
++        routingProxy = routingProxyBuilder
++                ->setMessagingQos(MessagingQos(5000))
++                ->setCached(false)
++                ->setDiscoveryQos(discoveryQos)
++                ->build();
++        EXPECT_TRUE(routingProxy != NULL);
++
++        // setup discovery proxy
++        std::string discoveryProviderParticipantId(systemSettings.getCcDiscoveryProviderParticipantId());
++        discoveryProxyBuilder = runtime
++                ->createProxyBuilder<joynr::system::DiscoveryProxy>(systemServicesDomain);
++        discoveryQos = DiscoveryQos();
++        discoveryQos.setCacheMaxAge(1000);
++        discoveryQos.setArbitrationStrategy(DiscoveryQos::ArbitrationStrategy::FIXED_PARTICIPANT);
++        discoveryQos.addCustomParameter("fixedParticipantId", discoveryProviderParticipantId);
++        discoveryQos.setDiscoveryTimeout(50);
++        discoveryProxy = discoveryProxyBuilder
++                ->setMessagingQos(MessagingQos(5000))
++                ->setCached(false)
++                ->setDiscoveryQos(discoveryQos)
++                ->build();
++        EXPECT_TRUE(discoveryProxy != NULL);
++
++        mockTestProvider = std::make_shared<MockTestProvider>(mockTestProviderQos);
++    }
++
++    void TearDown() {
++        delete routingProxyBuilder;
++        delete routingProxy;
++        delete discoveryProxyBuilder;
++        delete discoveryProxy;
++        delete runtime;
++        std::remove(temporarylibjoynrSettingsFilename.c_str());
++        std::remove(LibjoynrSettings::DEFAULT_SUBSCRIPTIONREQUEST_STORAGE_FILENAME().c_str());
++        std::remove(LibjoynrSettings::DEFAULT_PARTICIPANT_IDS_PERSISTENCE_FILENAME().c_str());
++    }
++};
++
++TEST_F(LibJoynrRuntimeTest, instantiateRuntime)
++{
++    ASSERT_TRUE(runtime != NULL);
++}
++
++TEST_F(LibJoynrRuntimeTest, registerProviderAddsNextHopToCcMessageRouter) {
++    std::string domain("LibJoynrRuntimeTest.Domain.A");
++
++    std::string participantId = runtime->registerProvider<tests::testProvider>(
++                domain,
++                mockTestProvider
++    );
++    bool resolved = false;
++    try {
++        routingProxy->resolveNextHop(resolved, participantId);
++        EXPECT_TRUE(resolved);
++    } catch (exceptions::JoynrException& e) {
++        ADD_FAILURE()<< "resolveNextHop was not successful";
++    }
++}
++
++TEST_F(LibJoynrRuntimeTest, unregisterProviderRemovesNextHopToCcMessageRouter) {
++    std::string domain("LibJoynrRuntimeTest.Domain.B");
++
++    std::string participantId = runtime->registerProvider<tests::testProvider>(
++                domain,
++                mockTestProvider
++    );
++
++    bool resolved = false;
++    try {
++        routingProxy->resolveNextHop(resolved, participantId);
++        EXPECT_TRUE(resolved);
++    } catch (exceptions::JoynrException& e) {
++        ADD_FAILURE()<< "resolveNextHop was not successful";
++    }
++
++    runtime->unregisterProvider(participantId);
++    try {
++        routingProxy->resolveNextHop(resolved, participantId);
++        EXPECT_FALSE(resolved);
++    } catch (exceptions::JoynrException& e) {
++        ADD_FAILURE()<< "resolveNextHop after unregisterProvider was not successful";
++    }
++}
++
++TEST_F(LibJoynrRuntimeTest, registerProviderAddsEntryToLocalCapDir) {
++    std::string domain("LibJoynrRuntimeTest.Domain.F");
++
++    std::string participantId = runtime->registerProvider<tests::testProvider>(
++                domain,
++                mockTestProvider
++    );
++
++    std::vector<joynr::types::CommunicationMiddleware::Enum> connections {
++            joynr::types::CommunicationMiddleware::JOYNR
++    };
++    joynr::types::DiscoveryEntry expectedDiscoveryEntry(
++                domain,
++                tests::testProvider::INTERFACE_NAME(),
++                participantId,
++                mockTestProviderQos,
++                connections
++    );
++    joynr::types::DiscoveryEntry discoveryEntry;
++    try {
++        discoveryProxy->lookup(discoveryEntry, participantId);
++        EXPECT_EQ(expectedDiscoveryEntry, discoveryEntry);
++    } catch (exceptions::JoynrException& e) {
++        ADD_FAILURE()<< "lookup was not successful";
++    }
++}
++
++TEST_F(LibJoynrRuntimeTest, arbitrateRegisteredProvider) {
++    std::string domain("LibJoynrRuntimeTest.Domain.C");
++    std::shared_ptr<MockTestProvider> mockTestProvider(new MockTestProvider());
++
++    std::string participantId = runtime->registerProvider<tests::testProvider>(
++                domain,
++                mockTestProvider
++    );
++
++    ProxyBuilder<tests::testProxy>* testProxyBuilder =
++            runtime->createProxyBuilder<tests::testProxy>(domain);
++
++    DiscoveryQos discoveryQos(1000);
++    discoveryQos.addCustomParameter("fixedParticipantId", participantId);
++    discoveryQos.setDiscoveryTimeout(50);
++    discoveryQos.setArbitrationStrategy(DiscoveryQos::ArbitrationStrategy::FIXED_PARTICIPANT);
++    tests::testProxy* testProxy = testProxyBuilder
++            ->setMessagingQos(MessagingQos(5000))
++            ->setCached(false)
++            ->setDiscoveryQos(discoveryQos)
++            ->build();
++    ASSERT_TRUE(testProxy != NULL);
++
++    delete testProxyBuilder;
++    delete testProxy;
++}
++
++TEST_F(LibJoynrRuntimeTest, callAsyncFunctionOnProvider) {
++    std::string domain("LibJoynrRuntimeTest.Domain.D");
++    std::shared_ptr<MockTestProvider> mockTestProvider(new MockTestProvider());
++
++    std::string participantId = runtime->registerProvider<tests::testProvider>(
++                domain,
++                mockTestProvider
++    );
++
++    ProxyBuilder<tests::testProxy>* testProxyBuilder =
++            runtime->createProxyBuilder<tests::testProxy>(domain);
++
++    DiscoveryQos discoveryQos(1000);
++    discoveryQos.addCustomParameter("fixedParticipantId", participantId);
++    discoveryQos.setDiscoveryTimeout(50);
++    discoveryQos.setArbitrationStrategy(DiscoveryQos::ArbitrationStrategy::FIXED_PARTICIPANT);
++    tests::testProxy* testProxy = testProxyBuilder
++            ->setMessagingQos(MessagingQos(5000))
++            ->setCached(false)
++            ->setDiscoveryQos(discoveryQos)
++            ->build();
++    ASSERT_TRUE(testProxy != NULL);
++
++    std::vector<int32_t> ints;
++    ints.push_back(4);
++    ints.push_back(6);
++    ints.push_back(12);
++    int32_t expectedSum = 22;
++    std::shared_ptr<Future<int32_t> > future(testProxy->sumIntsAsync(ints));
++    try {
++        future->wait(500);
++
++        ASSERT_EQ(StatusCodeEnum::SUCCESS, future->getStatus());
++        int32_t actualValue;
++        future->get(actualValue);
++        EXPECT_EQ(expectedSum, actualValue);
++    } catch (exceptions::JoynrTimeOutException& e) {
++        ADD_FAILURE()<< "Timeout waiting for sumIntsAsync";
++    }
++
++    delete testProxyBuilder;
++    delete testProxy;
++}
++
++TEST_F(LibJoynrRuntimeTest, callSyncFunctionOnProvider) {
++    std::string domain("LibJoynrRuntimeTest.Domain.E");
++    std::shared_ptr<MockTestProvider> mockTestProvider(new MockTestProvider());
++
++    std::string participantId = runtime->registerProvider<tests::testProvider>(
++                domain,
++                mockTestProvider
++    );
++
++    ProxyBuilder<tests::testProxy>* testProxyBuilder =
++            runtime->createProxyBuilder<tests::testProxy>(domain);
++
++    DiscoveryQos discoveryQos(1000);
++    discoveryQos.addCustomParameter("fixedParticipantId", participantId);
++    discoveryQos.setDiscoveryTimeout(50);
++    discoveryQos.setArbitrationStrategy(DiscoveryQos::ArbitrationStrategy::FIXED_PARTICIPANT);
++    tests::testProxy* testProxy = testProxyBuilder
++            ->setMessagingQos(MessagingQos(5000))
++            ->setCached(false)
++            ->setDiscoveryQos(discoveryQos)
++            ->build();
++    ASSERT_TRUE(testProxy != NULL);
++
++    std::vector<int32_t> ints;
++    ints.push_back(4);
++    ints.push_back(6);
++    ints.push_back(12);
++    int32_t expectedSum = 22;
++    int32_t sum = 0;
++    try {
++        testProxy->sumInts(sum, ints);
++    } catch (exceptions::JoynrException& e) {
++        ADD_FAILURE()<< "sumInts was not successful";
++        EXPECT_EQ(expectedSum, sum);
++    }
++
++    delete testProxyBuilder;
++    delete testProxy;
++}
+diff --git a/cpp/tests/systemintegration-tests/asyncipc/End2EndAsyncIPCTest.cpp b/cpp/tests/systemintegration-tests/asyncipc/End2EndAsyncIPCTest.cpp
+new file mode 100644
+index 0000000..89fda8a
+--- /dev/null
++++ b/cpp/tests/systemintegration-tests/asyncipc/End2EndAsyncIPCTest.cpp
+@@ -0,0 +1,296 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2015 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include "joynr/PrivateCopyAssign.h"
++#include <gtest/gtest.h>
++#include <gmock/gmock.h>
++#include <memory>
++#include <string>
++#include <stdint.h>
++#include "joynr/DispatcherUtils.h"
++#include "tests/utils/MockObjects.h"
++#include "runtimes/cluster-controller-runtime/JoynrClusterControllerRuntime.h"
++#include "runtimes/libjoynr-runtime/asyncipc/LibJoynrAsyncIPCRuntime.h"
++
++#include "joynr/tests/DefaulttestProvider.h"
++#include "joynr/tests/testProxy.h"
++
++#include "joynr/OnChangeWithKeepAliveSubscriptionQos.h"
++
++#include "tests/utils/MockObjects.h"
++
++#include "joynr/Future.h"
++#include <memory>
++#include "joynr/TypeUtil.h"
++
++using namespace ::testing;
++
++using namespace joynr;
++
++class End2EndAsyncIPCTest : public Test {
++
++public:
++    std::string messageSettingsFilename;
++
++    JoynrClusterControllerRuntime* clusterControllerRuntime;
++    LibJoynrAsyncIPCRuntime* runtime1;
++    LibJoynrAsyncIPCRuntime* runtime2;
++
++    tests::testProxy* testProxy;
++
++    std::string domain;
++    joynr::Semaphore semaphore;
++
++    End2EndAsyncIPCTest() :
++        messageSettingsFilename("test-resources/SystemIntegrationTest1.settings"),
++        clusterControllerRuntime(NULL),
++        runtime1(NULL),
++        runtime2(NULL),
++        testProxy(NULL),
++        domain("local"),
++        semaphore(0)
++    {
++        // create the cluster controller runtime
++        clusterControllerRuntime = new JoynrClusterControllerRuntime(
++                    NULL,
++                    new Settings(messageSettingsFilename)
++        );
++        clusterControllerRuntime->registerRoutingProvider();
++        clusterControllerRuntime->registerDiscoveryProvider();
++
++        // create lib joynr runtimes
++        runtime1 = new LibJoynrAsyncIPCRuntime(new joynr::Settings(messageSettingsFilename));
++        runtime2 = new LibJoynrAsyncIPCRuntime(new joynr::Settings(messageSettingsFilename));
++    }
++
++    void SetUp() {
++        clusterControllerRuntime->startMessaging();
++        clusterControllerRuntime->waitForChannelCreation();
++    }
++
++    void TearDown() {
++        if(testProxy != NULL) delete testProxy;
++        if(runtime1 != NULL) delete runtime1;
++        if(runtime2 != NULL) delete runtime2;
++
++        if(clusterControllerRuntime != NULL) {
++            clusterControllerRuntime->deleteChannel();
++            clusterControllerRuntime->stopMessaging();
++            delete clusterControllerRuntime;
++        }
++    }
++
++    ~End2EndAsyncIPCTest(){
++    }
++
++    void registerTestProvider() {
++        // create provider
++        types::ProviderQos providerQos;
++        providerQos.setPriority(DispatcherUtils::nowInMilliseconds());
++
++        std::shared_ptr<tests::testProvider> provider(new MockTestProvider(providerQos));
++
++        // register provider
++        std::string participantId = runtime1->registerProvider(domain, provider);
++        ASSERT_TRUE(!participantId.empty());
++    }
++
++    void connectProxy() {
++        auto proxyBuilder = runtime2->createProxyBuilder<tests::testProxy>(domain);
++        ASSERT_TRUE(proxyBuilder != NULL);
++
++        // start arbitration
++        DiscoveryQos discoveryQos;
++        discoveryQos.setArbitrationStrategy(DiscoveryQos::ArbitrationStrategy::HIGHEST_PRIORITY);
++        discoveryQos.setDiscoveryTimeout(20000);
++        proxyBuilder->setDiscoveryQos(discoveryQos);
++
++        testProxy = proxyBuilder->build();
++        ASSERT_TRUE(testProxy != NULL);
++
++        delete proxyBuilder;
++    }
++
++protected:
++    ADD_LOGGER(End2EndAsyncIPCTest);
++
++private:
++    DISALLOW_COPY_AND_ASSIGN(End2EndAsyncIPCTest);
++
++};
++
++INIT_LOGGER(End2EndAsyncIPCTest);
++
++ACTION_P(ReleaseSemaphore,semaphore)
++{
++    semaphore->notify();
++}
++
++TEST_F(End2EndAsyncIPCTest, instantiate_Runtimes)
++{
++    ASSERT_TRUE(clusterControllerRuntime != NULL);
++    ASSERT_TRUE(runtime1 != NULL);
++    ASSERT_TRUE(runtime2 != NULL);
++}
++
++TEST_F(End2EndAsyncIPCTest, call_sync_method)
++{
++    // register a provider
++    registerTestProvider();
++
++    // connect the proxy
++    connectProxy();
++
++    // call method
++    std::string actualValue;
++    try {
++        testProxy->sayHello(actualValue);
++        ASSERT_EQ("Hello World", actualValue);
++    } catch (exceptions::JoynrException& e) {
++        ADD_FAILURE()<< "sayHello was not successful";
++    }
++}
++
++TEST_F(End2EndAsyncIPCTest, call_async_method)
++{
++    // register a provider
++    registerTestProvider();
++
++    // connect the proxy
++    connectProxy();
++
++    std::shared_ptr<Future<std::string>> sayHelloFuture(testProxy->sayHelloAsync());
++    sayHelloFuture->wait();
++    ASSERT_TRUE(sayHelloFuture->isOk());
++    std::string actualValue;
++    sayHelloFuture->get(actualValue);
++    ASSERT_EQ("Hello World", actualValue);
++}
++
++TEST_F(End2EndAsyncIPCTest, get_set_attribute_sync)
++{
++    // register a provider
++    registerTestProvider();
++
++    // connect the proxy
++    connectProxy();
++
++    // synchronous
++    try {
++        testProxy->setTestAttribute(15);
++    } catch (exceptions::JoynrException& e) {
++        ADD_FAILURE()<< "setTestAttribute was not successful";
++    }
++
++    int result = 0;
++    try {
++        testProxy->getTestAttribute(result);
++    } catch (exceptions::JoynrException& e) {
++        ADD_FAILURE()<< "getTestAttribute was not successful";
++    }
++    ASSERT_EQ(15, result);
++}
++
++TEST_F(End2EndAsyncIPCTest, get_set_attribute_async)
++{
++    // register a provider
++    registerTestProvider();
++
++    // connect the proxy
++    connectProxy();
++
++    // asynchronous
++    std::shared_ptr<Future<void>> setAttributeFuture(testProxy->setTestAttributeAsync(18));
++    setAttributeFuture->wait();
++    ASSERT_TRUE(setAttributeFuture->isOk());
++
++    std::shared_ptr<Future<int>> getAttributeFuture(testProxy->getTestAttributeAsync());
++    getAttributeFuture->wait();
++    ASSERT_TRUE(getAttributeFuture->isOk());
++    int actualValue;
++    getAttributeFuture->get(actualValue);
++    ASSERT_EQ(18, actualValue);
++}
++
++TEST_F(End2EndAsyncIPCTest, subscriptionlistener)
++{
++    // register a provider
++    registerTestProvider();
++
++    // connect the proxy
++    connectProxy();
++
++    // use semaphore to count recieves
++    auto mockListener = new MockSubscriptionListenerOneType<int>();
++    EXPECT_CALL(*mockListener, onReceive(A<const int&>())).WillRepeatedly(ReleaseSemaphore(&semaphore));
++    std::shared_ptr<ISubscriptionListener<int> > subscriptionListener(mockListener);
++
++    OnChangeWithKeepAliveSubscriptionQos subscriptionQos(
++                500000, // validity_ms
++                2000, // minInterval_ms
++                3000, // maxInterval_ms
++                4000 // alertInterval_ms
++    );
++    testProxy->subscribeToTestAttribute(subscriptionListener, subscriptionQos);
++
++    // Wait for 2 subscription messages to arrive
++    ASSERT_TRUE(semaphore.waitFor(std::chrono::seconds(20)));
++    ASSERT_TRUE(semaphore.waitFor(std::chrono::seconds(20)));
++}
++
++TEST_F(End2EndAsyncIPCTest, performance_sendManyRequests) {
++    // register a provider
++    registerTestProvider();
++
++    // connect the proxy
++    connectProxy();
++
++    uint64_t startTime = DispatcherUtils::nowInMilliseconds();
++    std::vector<std::shared_ptr<Future<int> > >testFutureList;
++    int numberOfMessages = 500;
++    int successFullMessages = 0;
++    for (int32_t i=0; i<numberOfMessages; i++){
++        std::vector<int32_t> list;
++        list.push_back(2);
++        list.push_back(4);
++        list.push_back(8);
++        list.push_back(i);
++        testFutureList.push_back(testProxy->sumIntsAsync(list));
++    }
++
++    for (int i=0; i<numberOfMessages; i++){
++        try {
++            testFutureList.at(i)->wait(25 * numberOfMessages);
++            int32_t expectedValue = 2+4+8+i;
++            if (testFutureList.at(i)->getStatus() == StatusCodeEnum::SUCCESS) {
++                successFullMessages++;
++                int actualValue;
++                testFutureList.at(i)->get(actualValue);
++                EXPECT_EQ(expectedValue, actualValue);
++            }
++        } catch (exceptions::JoynrTimeOutException& e) {
++            ADD_FAILURE()<< "Timeout waiting for response";
++        }
++    }
++
++    uint64_t stopTime = DispatcherUtils::nowInMilliseconds();
++    //check if all Messages were received:
++    EXPECT_EQ(numberOfMessages, successFullMessages);
++    JOYNR_LOG_INFO(logger, "Required Time for {} Messages: {}", numberOfMessages, (stopTime - startTime));
++}
++
+diff --git a/cpp/tests/unit-tests/asyncipc/AsyncIPCMessagingStubFactoryTest.cpp b/cpp/tests/unit-tests/asyncipc/AsyncIPCMessagingStubFactoryTest.cpp
+new file mode 100644
+index 0000000..7ac649e
+--- /dev/null
++++ b/cpp/tests/unit-tests/asyncipc/AsyncIPCMessagingStubFactoryTest.cpp
+@@ -0,0 +1,84 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2014 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include <gtest/gtest.h>
++
++#include "PrettyPrint.h"
++
++#include "joynr/IMessaging.h"
++#include "joynr/system/RoutingTypes/WebSocketAddress.h"
++#include "joynr/system/RoutingTypes/WebSocketClientAddress.h"
++#include "joynr/system/RoutingTypes/ChannelAddress.h"
++#include "joynr/system/RoutingTypes/CommonApiDbusAddress.h"
++#include "joynr/system/RoutingTypes/BrowserAddress.h"
++#include "joynr/system/RoutingTypes/AsyncIPCAddress.h"
++
++#include "libjoynr/asyncipc/AsyncIPCMessagingStubFactory.h"
++
++namespace joynr {
++
++class AsyncIPCMessagingStubFactoryTest : public testing::Test {
++public:
++    AsyncIPCMessagingStubFactoryTest() :
++        webSocketServerAddress(joynr::system::RoutingTypes::WebSocketProtocol::WS, "localhost", 42, "path"),
++        webSocketClientAddress("clientId"),
++        channelAddress("channelId"),
++        commonApiDbusAddress("domain", "serviceName", "participantId"),
++        browserAddress("windowId"),
++        asyncIPCAddress("queueName")
++    {
++    }
++
++    virtual void TearDown() {
++    }
++
++protected:
++    ADD_LOGGER(AsyncIPCMessagingStubFactoryTest);
++    joynr::system::RoutingTypes::WebSocketAddress webSocketServerAddress;
++    joynr::system::RoutingTypes::WebSocketClientAddress webSocketClientAddress;
++    joynr::system::RoutingTypes::ChannelAddress channelAddress;
++    joynr::system::RoutingTypes::CommonApiDbusAddress commonApiDbusAddress;
++    joynr::system::RoutingTypes::BrowserAddress browserAddress;
++    joynr::system::RoutingTypes::AsyncIPCAddress asyncIPCAddress;
++};
++
++INIT_LOGGER(AsyncIPCMessagingStubFactoryTest);
++
++TEST_F(AsyncIPCMessagingStubFactoryTest, canCreateAsyncIPCAddress) {
++    AsyncIPCMessagingStubFactory factory;
++
++    EXPECT_TRUE(factory.canCreate(asyncIPCAddress));
++}
++
++TEST_F(AsyncIPCMessagingStubFactoryTest, canOnlyCreateAsyncIPCAddress) {
++    AsyncIPCMessagingStubFactory factory;
++
++    EXPECT_FALSE(factory.canCreate(channelAddress));
++    EXPECT_FALSE(factory.canCreate(commonApiDbusAddress));
++    EXPECT_FALSE(factory.canCreate(browserAddress));
++    EXPECT_FALSE(factory.canCreate(webSocketClientAddress));
++    EXPECT_FALSE(factory.canCreate(webSocketServerAddress));
++}
++
++TEST_F(AsyncIPCMessagingStubFactoryTest, createReturnsMessagingStub) {
++    AsyncIPCMessagingStubFactory factory;
++
++    EXPECT_FALSE(factory.create(asyncIPCAddress).get() == 0);
++}
++
++} // namespace joynr
+diff --git a/cpp/tests/unit-tests/asyncipc/AsyncIPCMessagingStubTest.cpp b/cpp/tests/unit-tests/asyncipc/AsyncIPCMessagingStubTest.cpp
+new file mode 100644
+index 0000000..26250f7
+--- /dev/null
++++ b/cpp/tests/unit-tests/asyncipc/AsyncIPCMessagingStubTest.cpp
+@@ -0,0 +1,178 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2014 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++#include <gtest/gtest.h>
++#include "PrettyPrint.h"
++
++#include <QtTest/QtTest>
++#include <QtCore/QObject>
++#include <QtCore/QTimer>
++#include <QtWebSockets/QWebSocket>
++#include <QtWebSockets/QWebSocketServer>
++
++#include "joynr/Logger.h"
++#include "joynr/JoynrMessage.h"
++#include "joynr/MessagingQos.h"
++#include "joynr/JsonSerializer.h"
++#include "joynr/Runnable.h"
++#include "joynr/ThreadPoolDelayedScheduler.h"
++#include "joynr/system/RoutingTypes/AsyncIPCAddress.h"
++#include "libjoynr/asyncipc/AsyncIPCMessagingStubAdapter.h"
++#include "libjoynr/asyncipc/AsyncIPCQueueSettings.h"
++#include "AsyncIPC-AsyncEventPoll.h"
++#include "AsyncIPC-AsyncMessage.h"
++
++class AsyncIPCMessagingStubTest : public QObject, public testing::Test
++{
++    Q_OBJECT
++public:
++    AsyncIPCMessagingStubTest(QObject* parent = Q_NULLPTR) :
++        QObject(parent)
++    {
++        qRegisterMetaType<joynr::JoynrMessage>("joynr::JoynrMessage");
++    }
++
++    ~AsyncIPCMessagingStubTest() {
++    }
++
++    static void SetUpTestCase() {}
++    static void TearDownTestCase() {}
++    virtual void SetUp() {
++    }
++    virtual void TearDown() {}
++
++    class AsyncPingReceiver: public AsyncIPC::AsyncMessage
++    {
++    public:
++        class AsyncIPCQueueReceiver : public joynr::Runnable
++        {
++        public:
++            AsyncIPCQueueReceiver(AsyncIPC::AsyncEventPoll& eventPoll)
++            : Runnable(true),
++              eventPoll(eventPoll),
++              quit(false),
++              isRunning(false)
++            {
++            }
++
++            void run()
++            {
++                isRunning = true;
++                while(!quit)
++                {
++                    eventPoll.poll_events(10000, 10);
++                }
++            }
++
++            void shutdown()
++            {
++                quit = true;
++            }
++
++            bool IsRunning() const
++            {
++                return isRunning;
++            }
++
++        private:
++            AsyncIPC::AsyncEventPoll eventPoll;
++            bool quit;
++            bool isRunning;
++        };
++
++        AsyncPingReceiver(const std::string& queueName)
++            : AsyncMessage(),
++              eventPoll(),
++              threadPool(1, "AsyncPingReceiver")
++        {
++            open(eventPoll, std::string("/" + queueName + ".mq").c_str(), AsyncIPC::AsyncMessage::Direction::IN);
++            clear();
++
++            runnable = new AsyncIPCQueueReceiver(eventPoll);
++            threadPool.schedule(runnable);
++
++            while (!runnable->IsRunning())
++                usleep(10);
++        }
++
++        virtual ~AsyncPingReceiver()
++        {
++            threadPool.shutdown();
++
++            runnable = NULL;
++        }
++
++        joynr::JoynrMessage& GetReceivedMessage()
++        {
++            return receivedMessage;
++        }
++
++    protected:
++
++        virtual bool handle_event_read(void)
++        {
++            static const size_t max_message_size = get_msgsize();
++            static char* message = new char[max_message_size];
++
++            size_t message_size;
++
++            while(do_receive(message, max_message_size, &message_size))
++            {
++                receivedMessage = joynr::JsonSerializer::deserialize<joynr::JoynrMessage>(message);
++                break;
++            }
++
++            return true;
++        }
++
++        AsyncIPC::AsyncEventPoll eventPoll;
++        joynr::JoynrMessage receivedMessage;
++        AsyncIPCQueueReceiver *runnable;
++        joynr::ThreadPoolDelayedScheduler threadPool;
++    };
++
++protected:
++    ADD_LOGGER(AsyncIPCMessagingStubTest);
++};
++
++INIT_LOGGER(AsyncIPCMessagingStubTest);
++
++TEST_F(AsyncIPCMessagingStubTest, transmitMessage) {
++    JOYNR_LOG_TRACE(logger, "transmit message");
++
++    std::string queueName("testQueueName");
++
++    joynr::JoynrMessage joynrMsg;
++
++    joynrMsg.setPayload("text to send..");
++
++    // message receiver
++    AsyncPingReceiver receiver(queueName);
++
++    // send message using messaging stub
++    joynr::AsyncIPCMessagingStubAdapter messagingStub(queueName);
++    std::string expectedMessage(joynrMsg.getPayload());
++    messagingStub.transmit(joynrMsg);
++
++    joynr::JoynrMessage& receivedMessage = receiver.GetReceivedMessage();
++
++    EXPECT_EQ(expectedMessage, receivedMessage.getPayload());
++}
++
++#include "AsyncIPCMessagingStubTest.moc"
++
+diff --git a/cpp/tests/unit-tests/asyncipc/AsyncIPCSettingsTest.cpp b/cpp/tests/unit-tests/asyncipc/AsyncIPCSettingsTest.cpp
+new file mode 100644
+index 0000000..57f25c9
+--- /dev/null
++++ b/cpp/tests/unit-tests/asyncipc/AsyncIPCSettingsTest.cpp
+@@ -0,0 +1,75 @@
++/*
++ * #%L
++ * %%
++ * Copyright (C) 2011 - 2014 BMW Car IT GmbH
++ * %%
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ * #L%
++ */
++
++#include <gtest/gtest.h>
++#include <cstdio>
++#include "PrettyPrint.h"
++#include "libjoynr/asyncipc/AsyncIPCSettings.h"
++#include "joynr/system/RoutingTypes/AsyncIPCAddress.h"
++#include "joynr/TypeUtil.h"
++#include "joynr/Settings.h"
++
++using namespace joynr;
++
++class AsyncIPCSettingsTest : public testing::Test {
++public:
++    AsyncIPCSettingsTest() :
++        testSettingsFileName("AsyncIPCSettingsTest-testSettings.settings")
++    {
++    }
++
++    virtual void TearDown() {
++        std::remove(testSettingsFileName.c_str());
++    }
++
++protected:
++    ADD_LOGGER(AsyncIPCSettingsTest);
++    std::string testSettingsFileName;
++};
++
++INIT_LOGGER(AsyncIPCSettingsTest);
++
++TEST_F(AsyncIPCSettingsTest, intializedWithDefaultSettings) {
++    Settings testSettings(testSettingsFileName);
++    AsyncIPCSettings asyncIPCSettings(testSettings);
++
++    EXPECT_TRUE(asyncIPCSettings.contains(AsyncIPCSettings::SETTING_CC_MESSAGING_PARTICIPANTID()));
++}
++
++TEST_F(AsyncIPCSettingsTest, overrideDefaultSettings) {
++    std::string expectedQueueName("newQueueName");
++    Settings testSettings(testSettingsFileName);
++    testSettings.set(AsyncIPCSettings::SETTING_CC_MESSAGING_PARTICIPANTID(), expectedQueueName);
++    AsyncIPCSettings asyncIPCSettings(testSettings);
++
++    std::string queueName = asyncIPCSettings.getClusterControllerMessagingParticipantId();
++    EXPECT_EQ(expectedQueueName, queueName);
++}
++
++TEST_F(AsyncIPCSettingsTest, createsAsyncIPCtAddress) {
++    std::string expectedQueueName("newQueueName");
++    joynr::system::RoutingTypes::AsyncIPCAddress expectedMessagingAddress("newQueueName");
++
++    Settings testSettings(testSettingsFileName);
++    testSettings.set(AsyncIPCSettings::SETTING_CC_MESSAGING_PARTICIPANTID(), expectedQueueName);
++    AsyncIPCSettings asyncIPCSettings(testSettings);
++
++    EXPECT_EQ(expectedMessagingAddress.getQueueId(), asyncIPCSettings.createClusterControllerMessagingAddressString());
++}
++
+-- 
+2.1.4
+

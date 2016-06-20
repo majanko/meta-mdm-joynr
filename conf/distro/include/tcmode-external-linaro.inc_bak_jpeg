@@ -1,0 +1,3 @@
+PREFERRED_PROVIDER_jpeg = "jpeg"
+PREFERRED_PROVIDER_virtual/gettext = "gettext"
+PREFERRED_PROVIDER_jpeg-native = "jpeg-native"

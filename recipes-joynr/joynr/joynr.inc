@@ -6,20 +6,22 @@ LICENSE = "Apache-2"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=19cbd64715b51267a47bf3750cc6a8a5"
 
 PREFERRED_VERSION_cmake ?="3.3.1"
+PREFERRED_VERSION_boost ?="1.56.0"
 
-PREFERRED_VERSION_gcc ?= "4.9"
-PREFERRED_VERSION_gcc-cross-initial = "4.9"
-PREFERRED_VERSION_gcc-cross = "4.9"
-PREFERRED_VERSION_gcc-crosssdk= "4.9"
-PREFERRED_VERSION_gcc-crosssdk-initial= "4.9"
+#PREFERRED_VERSION_gcc ?= "4.9"
+#PREFERRED_VERSION_gcc-cross-initial = "4.9"
+#PREFERRED_VERSION_gcc-cross = "4.9"
+#PREFERRED_VERSION_gcc-crosssdk= "4.9"
+#PREFERRED_VERSION_gcc-crosssdk-initial= "4.9"
 
 # working dependency but has almost everything in it
-DEPENDS = "qtbase qtwebsockets curl git-native libasyncipc libwebsockets boost cmake gcc-cross-initial"
+DEPENDS = "qtbase qtwebsockets curl git-native libasyncipc libwebsockets boost"
 
 # test dependency
 # DEPENDS = "qtwebsockets curl git-native spdlog"
 
-SRCREV = "78c712299d340c9e4c35d4a5f5560a0e288867bf"
+#SRCREV = "78c712299d340c9e4c35d4a5f5560a0e288867bf"
+SRCREV = "50c65dd0d36fd40a78c92327403ee42e9af1923f"
 
 SRC_URI = "git://github.com/bmwcarit/joynr.git;branch=${PV};protocol=git \
 	   http://central.maven.org/maven2/io/joynr/tools/generator/joynr-generator-standalone/${PV}/joynr-generator-standalone-${PV}.jar;unpack=0 \
